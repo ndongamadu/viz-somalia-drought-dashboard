@@ -1,0 +1,170 @@
+/**** FONTS ****/
+@font-face {
+  font-family: 'Gotham-Bold';
+  src: url("../fonts/Gotham-Bold.eot");
+  src: url("../fonts/Gotham-Bold.woff") format("woff");
+  font-style: normal;
+  font-stretch: normal; 
+}
+
+@font-face {
+  font-family: 'Gotham-Light';
+  src: url("../fonts/Gotham-Light.eot");
+  src: url("../fonts/Gotham-Light.woff") format("woff");
+  font-style: normal;
+  font-stretch: normal; 
+}
+
+@font-face {
+  font-family: 'SourceSansPro-Regular';
+  src: url("../fonts/SourceSansPro-Regular.eot");
+  src: url("../fonts/SourceSansPro-Regular.woff") format("woff");
+  font-style: normal;
+  font-stretch: normal; 
+}
+
+/**** ELEMENTS ****/
+body {
+	font-family: 'SourceSansPro-Regular';
+}
+h1 {
+	font-family: 'Gotham-Bold';
+	font-size: 19px;
+	margin-top: 0;
+}
+.description-text > p {
+	margin-bottom: 30px;
+}
+h2 {
+	font-family: 'Gotham-Bold';
+	font-size: 14px;
+	margin-top: 0;
+}
+h3{
+	font-family: 'SourceSansPro-Regular';
+	font-size: 14px;
+	font-weight: normal;
+	margin-top: 0;
+}
+h4{
+	font-family: 'Gotham-Bold';
+	font-size: 12px;
+	margin-bottom: 5px;
+	text-transform: uppercase;
+}
+a {
+	text-decoration: underline;
+}
+strong {
+	font-family: 'Gotham-Bold';
+}
+.icon-ocha {
+	color: #046bb5;
+	font-size: 24px;
+	left: 25px;
+	position: absolute;
+	top: 10px;
+}
+.icon-education {
+	font-size: 18px;
+}
+.text-center {
+	text-align: center;
+}
+.small{
+	font-size: 12px;
+}
+.container{
+	margin: 20px 0;
+}
+.graphs > div {
+	margin-bottom: 15px;
+	min-height: 420px;
+}
+.chart-container {
+	border: 1px solid #e6e7e8;
+	padding-top: 5px;
+}
+.header {    
+	background-color: #f47933;
+	display: inline-block;
+	margin-bottom: 0;
+	min-height: 82px;
+  padding: 1px 8px 0 45px;
+  background-repeat: no-repeat;
+  background-position: 8px 8px;
+}
+.header h4 {
+	color: #fff;
+}
+.timespan {
+	margin-top: 20px;
+}
+.keystat-container {
+	min-height: 84px;
+}
+.keystat {
+	text-align: right;
+	width: 75%;
+}
+.num{
+	color: #026cb6;
+	display: inline-block;
+	font-family: 'Gotham-Light';
+	font-size: 30px;
+	font-weight: 700;
+}
+.map-container {
+	display: none;
+	margin-bottom: 30px;
+}
+#map {
+	background-color: #b5d0d0;
+}
+.map-tip{
+  position: absolute;
+}
+.d3-tip {
+  padding:5px;
+  background-color:white;
+  background: rgba(255,255,255,0.8);
+  box-shadow: 0 0 15px rgba(0,0,0,0.2);
+  border-radius: 5px;
+  font-size:1em;
+}
+#adm1layer path {
+	cursor: pointer;
+}
+#adm1layer path.inactive {
+	cursor: default;
+}
+.regionLabel {
+	position: absolute;
+	z-index: 2;
+	bottom: 20px;
+	right: 35px;
+	text-align: right;
+}
+.countryLabel {
+	fill: #333;
+	font-size: 10px;
+}
+.c3-legend-item,
+.c3-axis {
+	font-family: 'SourceSansPro-Regular';
+}
+
+@media (min-width: 767px){
+	.container{
+		margin: 20px auto;
+	}
+	.keystat {
+		text-align: right;
+		width: 64%;
+	}
+	.regionLabel {
+		bottom: 65px;
+	}
+}
+
+

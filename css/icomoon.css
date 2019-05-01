@@ -1,0 +1,47 @@
+@font-face {
+  font-family: 'ocha-icons';
+  src:  url('../fonts/ocha-icons.eot?zgb47s');
+  src:  url('../fonts/ocha-icons.eot?zgb47s#iefix') format('embedded-opentype'),
+    url('../fonts/ocha-icons.ttf?zgb47s') format('truetype'),
+    url('../fonts/ocha-icons.woff?zgb47s') format('woff'),
+    url('../fonts/ocha-icons.svg?zgb47s#ocha-icons') format('svg');
+  font-weight: normal;
+  font-style: normal;
+}
+
+[class^="icon-"], [class*=" icon-"] {
+  /* use !important to prevent issues with browser extensions that change fonts */
+  font-family: 'ocha-icons' !important;
+  speak: none;
+  font-style: normal;
+  font-weight: normal;
+  font-variant: normal;
+  text-transform: none;
+  line-height: 1;
+
+  /* Better Font Rendering =========== */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.icon-education:before {
+  content: "\e900";
+}
+.icon-foodsecuritycluster:before {
+  content: "\e901";
+}
+.icon-health:before {
+  content: "\e902";
+}
+.icon-nutrition:before {
+  content: "\e903";
+}
+.icon-protection:before {
+  content: "\e904";
+}
+.icon-shelter:before {
+  content: "\e905";
+}
+.icon-wash:before {
+  content: "\e906";
+}

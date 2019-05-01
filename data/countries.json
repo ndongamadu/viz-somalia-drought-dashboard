@@ -1,0 +1,9 @@
+{
+	"countries": [
+		{ "country": "Somalia", "coordinates": [46.1996, 5.1521 ] },
+		{ "country": "Ethiopa", "coordinates": [40.4897, 9.1450 ] },
+		{ "country": "Kenya", "coordinates": [37.9062, 0.0236 ] },
+		{ "country": "Djibouti", "coordinates": [42.5903, 11.8251 ] },
+		{ "country": "Arabian Sea", "coordinates": [53.000, 9.1376 ] }
+	]
+}
