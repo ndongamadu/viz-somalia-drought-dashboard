@@ -68,14 +68,9 @@ function generateDescription(descriptionData){
   $('.description-text p').text(descriptionData[0]['#description'])
 }
 
-function generateCharts(){
-
-}
-
 function updateCharts(region) {
 
 }
-
 
 var mapsvg,
     centered;
@@ -168,6 +163,41 @@ function reset() {
   return false;
 }
 
+/** River Level Charts **/
+function generateRiverLevels(riverLevel1Data, riverLevel2Data) {
+  var riverDataArray = [riverLevel1Data, riverLevel2Data];
+  for (var i=0; i<riverDataArray.length; i++){
+    var riverData = riverDataArray[i];
+    var riverChart = '#riverLevel'+ (i+1) +'Chart';
+    var date = ['x'];
+    var severity = ['severity'];
+    var severityMean = ['severityMean'];
+    for (var j=0; j<riverData.length; j++){
+      date.push(riverData[j]['#date+reported']+'-'+riverData[j]['#indicator+num']);
+      severity.push(riverData[j]['#severity']);
+      severityMean.push(riverData[j]['#severity+mean']);
+    }
+
+    var chart = c3.generate({
+      bindto: riverChart,
+      data: {
+        x: 'x',
+        xFormat: '%b-%d',
+        columns: [date, severity, severityMean]
+      },
+      axis: {
+        x: {
+          type: 'timeseries',
+          tick: {
+            count: 52,
+            format: '%m-%d'
+          }
+        }
+      }
+    });
+  }
+}
+
 var somCall = $.ajax({ 
   type: 'GET', 
   url: 'data/som-merged-topo.json',
@@ -210,17 +240,22 @@ var idpCall = $.ajax({
   dataType: 'json',
 });
 
+//description data
 $.when(descriptionCall).then(function(descriptionArgs){
   var descriptionData = hxlProxyToJSON(descriptionArgs);
   generateDescription(descriptionData);
 });
 
+//map data
 $.when(adm1Call, somCall, countrieslabelCall).then(function(adm1Args, somArgs, countrieslabelArgs){
   var countrieslabel = countrieslabelArgs[0].countries;
   generateMap(somArgs[0], countrieslabel);
 });
 
-$.when(riverLevel1Call, riverLevel2Call, idpCall).then(function(riverLevel1Args, riverLevelArgs, idpArgs){
-  console.log('data loaded');
+//river levels data
+$.when(riverLevel1Call, riverLevel2Call).then(function(riverLevel1Args, riverLevel2Args){
+  var riverLevel1Data = hxlProxyToJSON(riverLevel1Args[0]);
+  var riverLevel2Data = hxlProxyToJSON(riverLevel2Args[0]);
+  generateRiverLevels(riverLevel1Data, riverLevel2Data);
 });
 
