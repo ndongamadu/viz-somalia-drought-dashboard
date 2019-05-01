@@ -58,6 +58,13 @@ a {
 strong {
 	font-family: 'Gotham-Bold';
 }
+.title {
+	display: flex;
+}
+.title span {
+	font-style: italic;
+	margin-left: auto;
+}
 .icon-ocha {
 	color: #046bb5;
 	font-size: 24px;
