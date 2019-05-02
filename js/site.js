@@ -93,7 +93,7 @@ function generateMap(adm1, countrieslabel, idpData){
     .attr('width', width)
     .attr('height', height);
 
-  var mapscale = ($('body').width()<768) ? width*4.7 : width*2.7;
+  var mapscale = ($('body').width()<768) ? width*6.7 : width*3.5;
   var mapprojection = d3.geo.mercator()
     .center([47, 5])
     .scale(mapscale)
@@ -105,14 +105,14 @@ function generateMap(adm1, countrieslabel, idpData){
     .append('path')
     .attr('d', d3.geo.path().projection(mapprojection))
     .attr('id',function(d){
-      return d.properties.admin1Name;
+      return d.properties.admin2Name;
     })
     .attr('class',function(d){
-      var classname = (d.properties.admin1Name != '0') ? 'adm1' : 'inactive';
+      var classname = (d.properties.admin2Name != '0') ? 'adm1' : 'inactive';
       return classname;
     })
     .attr('fill', function(d) {
-      var clr = (d.properties.admin1Name != '0') ? fillColor: inactiveFillColor;
+      var clr = (d.properties.admin2Name != '0') ? fillColor: inactiveFillColor;
       return clr;
     })
     .attr('stroke-width', 1)
@@ -127,7 +127,7 @@ function generateMap(adm1, countrieslabel, idpData){
       maptip
         .classed('hidden', false)
         .attr('style', 'left:'+(mouse[0]+20)+'px; top:'+(mouse[1]+20)+'px')
-        .html(d.properties.admin1Name)
+        .html(d.properties.admin2Name)
     })
     .on('mouseout',  function(d,i) {
       if (!$(this).data('selected'))
@@ -135,7 +135,7 @@ function generateMap(adm1, countrieslabel, idpData){
       maptip.classed('hidden', true);
     })
     .on('click', function(d,i){
-      selectRegion($(this), d.properties.admin1Name);
+      selectRegion($(this), d.properties.admin2Name);
     }); 
 
   //create country labels
@@ -152,7 +152,7 @@ function generateMap(adm1, countrieslabel, idpData){
 
   cf = crossfilter(idpData);
   idpsDimension = cf.dimension(function(d){
-    return [d['#adm1+dest+name'], d['#meta+category'], d['#date+reported']];
+    return [d['#adm2+dest+name'], d['#meta+category'], d['#date+reported']];
   });
 
   idpsGroup = idpsDimension.group().reduceSum(function(d){ return d['#affected']; }).top(Infinity).sort(date_sort);
@@ -232,7 +232,7 @@ var date_sort = function (d1, d2) {
 };
 
 
-function getDisplacedData (adm1) {
+function getDisplacedData (adm2) {
   var fromDate = $('#dateFrom option:selected').text();
   var endDate = $('#dateEnd option:selected').text();
 
@@ -243,10 +243,10 @@ function getDisplacedData (adm1) {
   var totalOther = 0;
   var total = 0;
   dateArray.push('Date');
-  affectedArray.push(adm1);
+  affectedArray.push(adm2);
 
   for (var i = 0; i < idpsGroup.length; i++) {
-    if (idpsGroup[i].key[0]===adm1) {
+    if (idpsGroup[i].key[0]===adm2) {
       total += idpsGroup[i].value;
       if (idpsGroup[i].key[1]==='Drought related') {
         dateArray.push(idpsGroup[i].key[2]);
@@ -351,7 +351,7 @@ function generateRiverLevels(riverLevel1Data, riverLevel2Data) {
 
 var somCall = $.ajax({ 
   type: 'GET', 
-  url: 'data/som-merged-topo.json',
+    url: 'data/som-adm2.json',
   dataType: 'json',
 });
 
@@ -413,6 +413,7 @@ $.when(adm1Call, somCall, countrieslabelCall, idpCall).then(function(adm1Args, s
   var countrieslabel = countrieslabelArgs[0].countries;
   var idps = hxlProxyToJSON(idpArgs[0]);
   //generateDisplacedData(idps);
+  console.log(somArgs[0])
   generateMap(somArgs[0], countrieslabel, idps);
 
 });
