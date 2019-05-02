@@ -71,6 +71,7 @@ function generateDescription(descriptionData){
 
 function updateCharts(region) {
   idpLineChart.load({
+    //unload: true, //refresh chart
     columns: getDisplacedData(region)
   });
   idpLineChart.hide('Displaced');
@@ -78,9 +79,9 @@ function updateCharts(region) {
 
 var mapsvg,
     centered;
-var fillColor = '#dddddd';
-var hoverColor = '#3b88c0';
-var inactiveFillColor = '#f2efe9';
+var fillColor = '#F8F4EC';
+var hoverColor = primaryColor;
+var inactiveFillColor = '#F8F4EC';
 function generateMap(adm1, countrieslabel, idpData){
   //remove loader and show map
   $('.sp-circle').remove();
@@ -93,7 +94,7 @@ function generateMap(adm1, countrieslabel, idpData){
     .attr('width', width)
     .attr('height', height);
 
-  var mapscale = ($('body').width()<768) ? width*6.7 : width*3.5;
+  var mapscale = ($('body').width()<768) ? width*6.7 : width*3.3;
   var mapprojection = d3.geo.mercator()
     .center([47, 5])
     .scale(mapscale)
@@ -208,18 +209,27 @@ function generateMap(adm1, countrieslabel, idpData){
     },
     data: {
       x: 'Date',
-      columns:[xUnfiltered, yUnfiltered],
+      columns: [xUnfiltered, yUnfiltered],
+      colors: {'Displaced': primaryColor}
     },
+    // color: {
+    //   pattern: [primaryColor]
+    // },
     axis: {
       x: {
         type: 'timeseries',
         tick: {
           format: '%Y-%m-%d',
-          count:52,
+          count: 52,
           outer: false
         }
       }
-    }
+    },    
+    tooltip: {
+      format: {
+        value: d3.format(',')
+      }
+    },
   });
 }// generateMap
 
@@ -324,15 +334,14 @@ function generateRiverLevels(riverLevel1Data, riverLevel2Data) {
         xFormat: '%b-%d',
         columns: [date, severity, severityMean],       
         colors: {
-          'Current Level': '#E56A54',
-          'Long Term Average': '#418FDE'
+          'Current Level': secondaryColor,
+          'Long Term Average': primaryColor
         }
       },
       axis: {
         x: {
           type: 'timeseries',
           tick: {
-            //count: 52,
             format: '%m-%d'
           }
         },
@@ -369,7 +378,7 @@ var countrieslabelCall = $.ajax({
 
 var descriptionCall = $.ajax({ 
   type: 'GET', 
-  url: 'https://proxy.hxlstandard.org/data.json?strip-headers=on&url=https%3A%2F%2Fdocs.google.com%2Fspreadsheets%2Fd%2F1LVJwQKBkX11ZTCy6UwPYlskJ1M1UhjRLkIJh4n6sUBE%2Fedit%23gid%3D0',
+  url: 'https://proxy.hxlstandard.org/data.json?strip-headers=on&url=https%3A%2F%2Fdocs.google.com%2Fspreadsheets%2Fd%2F1LVJwQKBkX11ZTCy6UwPYlskJ1M1UhjRLkIJh4n6sUBE%2Fedit%23gid%3D0&force=on',
   dataType: 'json',
 });
 
@@ -401,7 +410,11 @@ var cf,
     totalConflict,
     totalOther,
     total;
-    
+
+//colors
+var primaryColor = '#418FDE',
+    secondaryColor = '#E56A54';
+
 //description data
 $.when(descriptionCall).then(function(descriptionArgs){
   var descriptionData = hxlProxyToJSON(descriptionArgs);
