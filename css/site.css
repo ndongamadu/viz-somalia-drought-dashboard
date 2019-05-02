@@ -135,7 +135,8 @@ select {
 }
 .countryLabel {
 	fill: #333;
-	font-size: 10px;
+	font-size: 12px;
+	text-transform: uppercase;
 }
 .c3-title,
 .c3-legend-item,

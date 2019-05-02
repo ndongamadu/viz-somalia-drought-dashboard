@@ -71,6 +71,7 @@ function generateDescription(descriptionData){
 
 function updateCharts(region) {
   idpLineChart.load({
+    //unload: true, //refresh chart
     columns: getDisplacedData(region)
   });
   idpLineChart.hide('Displaced');
@@ -78,9 +79,9 @@ function updateCharts(region) {
 
 var mapsvg,
     centered;
-var fillColor = '#dddddd';
-var hoverColor = '#3b88c0';
-var inactiveFillColor = '#f2efe9';
+var fillColor = '#F8F4EC';
+var hoverColor = primaryColor;
+var inactiveFillColor = '#F8F4EC';
 function generateMap(adm1, countrieslabel, idpData){
   //remove loader and show map
   $('.sp-circle').remove();
@@ -93,7 +94,7 @@ function generateMap(adm1, countrieslabel, idpData){
     .attr('width', width)
     .attr('height', height);
 
-  var mapscale = ($('body').width()<768) ? width*4.7 : width*2.7;
+  var mapscale = ($('body').width()<768) ? width*6.7 : width*3.3;
   var mapprojection = d3.geo.mercator()
     .center([47, 5])
     .scale(mapscale)
@@ -105,14 +106,14 @@ function generateMap(adm1, countrieslabel, idpData){
     .append('path')
     .attr('d', d3.geo.path().projection(mapprojection))
     .attr('id',function(d){
-      return d.properties.admin1Name;
+      return d.properties.admin2Name;
     })
     .attr('class',function(d){
-      var classname = (d.properties.admin1Name != '0') ? 'adm1' : 'inactive';
+      var classname = (d.properties.admin2Name != '0') ? 'adm1' : 'inactive';
       return classname;
     })
     .attr('fill', function(d) {
-      var clr = (d.properties.admin1Name != '0') ? fillColor: inactiveFillColor;
+      var clr = (d.properties.admin2Name != '0') ? fillColor: inactiveFillColor;
       return clr;
     })
     .attr('stroke-width', 1)
@@ -127,7 +128,7 @@ function generateMap(adm1, countrieslabel, idpData){
       maptip
         .classed('hidden', false)
         .attr('style', 'left:'+(mouse[0]+20)+'px; top:'+(mouse[1]+20)+'px')
-        .html(d.properties.admin1Name)
+        .html(d.properties.admin2Name)
     })
     .on('mouseout',  function(d,i) {
       if (!$(this).data('selected'))
@@ -135,7 +136,7 @@ function generateMap(adm1, countrieslabel, idpData){
       maptip.classed('hidden', true);
     })
     .on('click', function(d,i){
-      selectRegion($(this), d.properties.admin1Name);
+      selectRegion($(this), d.properties.admin2Name);
     }); 
 
   //create country labels
@@ -152,7 +153,7 @@ function generateMap(adm1, countrieslabel, idpData){
 
   cf = crossfilter(idpData);
   idpsDimension = cf.dimension(function(d){
-    return [d['#adm1+dest+name'], d['#meta+category'], d['#date+reported']];
+    return [d['#adm2+dest+name'], d['#meta+category'], d['#date+reported']];
   });
 
   idpsGroup = idpsDimension.group().reduceSum(function(d){ return d['#affected']; }).top(Infinity).sort(date_sort);
@@ -208,18 +209,27 @@ function generateMap(adm1, countrieslabel, idpData){
     },
     data: {
       x: 'Date',
-      columns:[xUnfiltered, yUnfiltered],
+      columns: [xUnfiltered, yUnfiltered],
+      colors: {'Displaced': primaryColor}
     },
+    // color: {
+    //   pattern: [primaryColor]
+    // },
     axis: {
       x: {
         type: 'timeseries',
         tick: {
           format: '%Y-%m-%d',
-          count:52,
+          count: 52,
           outer: false
         }
       }
-    }
+    },    
+    tooltip: {
+      format: {
+        value: d3.format(',')
+      }
+    },
   });
 }// generateMap
 
@@ -232,7 +242,7 @@ var date_sort = function (d1, d2) {
 };
 
 
-function getDisplacedData (adm1) {
+function getDisplacedData (adm2) {
   var fromDate = $('#dateFrom option:selected').text();
   var endDate = $('#dateEnd option:selected').text();
 
@@ -243,10 +253,10 @@ function getDisplacedData (adm1) {
   var totalOther = 0;
   var total = 0;
   dateArray.push('Date');
-  affectedArray.push(adm1);
+  affectedArray.push(adm2);
 
   for (var i = 0; i < idpsGroup.length; i++) {
-    if (idpsGroup[i].key[0]===adm1) {
+    if (idpsGroup[i].key[0]===adm2) {
       total += idpsGroup[i].value;
       if (idpsGroup[i].key[1]==='Drought related') {
         dateArray.push(idpsGroup[i].key[2]);
@@ -324,15 +334,14 @@ function generateRiverLevels(riverLevel1Data, riverLevel2Data) {
         xFormat: '%b-%d',
         columns: [date, severity, severityMean],       
         colors: {
-          'Current Level': '#E56A54',
-          'Long Term Average': '#418FDE'
+          'Current Level': secondaryColor,
+          'Long Term Average': primaryColor
         }
       },
       axis: {
         x: {
           type: 'timeseries',
           tick: {
-            //count: 52,
             format: '%m-%d'
           }
         },
@@ -351,7 +360,7 @@ function generateRiverLevels(riverLevel1Data, riverLevel2Data) {
 
 var somCall = $.ajax({ 
   type: 'GET', 
-  url: 'data/som-merged-topo.json',
+    url: 'data/som-adm2.json',
   dataType: 'json',
 });
 
@@ -369,7 +378,7 @@ var countrieslabelCall = $.ajax({
 
 var descriptionCall = $.ajax({ 
   type: 'GET', 
-  url: 'https://proxy.hxlstandard.org/data.json?strip-headers=on&url=https%3A%2F%2Fdocs.google.com%2Fspreadsheets%2Fd%2F1LVJwQKBkX11ZTCy6UwPYlskJ1M1UhjRLkIJh4n6sUBE%2Fedit%23gid%3D0',
+  url: 'https://proxy.hxlstandard.org/data.json?strip-headers=on&url=https%3A%2F%2Fdocs.google.com%2Fspreadsheets%2Fd%2F1LVJwQKBkX11ZTCy6UwPYlskJ1M1UhjRLkIJh4n6sUBE%2Fedit%23gid%3D0&force=on',
   dataType: 'json',
 });
 
@@ -401,7 +410,11 @@ var cf,
     totalConflict,
     totalOther,
     total;
-    
+
+//colors
+var primaryColor = '#418FDE',
+    secondaryColor = '#E56A54';
+
 //description data
 $.when(descriptionCall).then(function(descriptionArgs){
   var descriptionData = hxlProxyToJSON(descriptionArgs);
@@ -413,6 +426,7 @@ $.when(adm1Call, somCall, countrieslabelCall, idpCall).then(function(adm1Args, s
   var countrieslabel = countrieslabelArgs[0].countries;
   var idps = hxlProxyToJSON(idpArgs[0]);
   //generateDisplacedData(idps);
+  console.log(somArgs[0])
   generateMap(somArgs[0], countrieslabel, idps);
 
 });
