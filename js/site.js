@@ -169,9 +169,10 @@ function generateRiverLevels(riverLevel1Data, riverLevel2Data) {
   for (var i=0; i<riverDataArray.length; i++){
     var riverData = riverDataArray[i];
     var riverChart = '#riverLevel'+ (i+1) +'Chart';
+    var riverName = (i==0) ? 'Shabelle River' : 'Juba River';
     var date = ['x'];
-    var severity = ['severity'];
-    var severityMean = ['severityMean'];
+    var severity = ['Current Level'];
+    var severityMean = ['Long Term Average'];
     for (var j=0; j<riverData.length; j++){
       date.push(riverData[j]['#date+reported']+'-'+riverData[j]['#indicator+num']);
       severity.push(riverData[j]['#severity']);
@@ -180,10 +181,19 @@ function generateRiverLevels(riverLevel1Data, riverLevel2Data) {
 
     var chart = c3.generate({
       bindto: riverChart,
+      title: { text: riverName },
+      padding: { top: 20 },
+      size: {
+        height: 200
+      },
       data: {
         x: 'x',
         xFormat: '%b-%d',
-        columns: [date, severity, severityMean]
+        columns: [date, severity, severityMean],       
+        colors: {
+          'Current Level': '#E56A54',
+          'Long Term Average': '#418FDE'
+        }
       },
       axis: {
         x: {
@@ -191,6 +201,14 @@ function generateRiverLevels(riverLevel1Data, riverLevel2Data) {
           tick: {
             count: 52,
             format: '%m-%d'
+          }
+        },
+        y: {
+          padding: {top: 0, bottom: 0},
+          min: 0,
+          tick: {
+            count: 6,
+            format: d3.format('.1f')
           }
         }
       }
