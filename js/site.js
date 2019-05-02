@@ -62,6 +62,7 @@ function getMonthName(monthID) {
 }
 
 var formatComma = d3.format(',');
+var formatNum = d3.format('.2s');
 
 function generateDescription(descriptionData){
   $('.title span').text('as of ' + descriptionData[0]['#date+reported']);
@@ -202,6 +203,9 @@ function generateMap(adm1, countrieslabel, idpData){
 
   idpLineChart = c3.generate({
     bindto: '#idpChart',
+    size: {
+      height: 320
+    },
     data: {
       x: 'Date',
       columns:[xUnfiltered, yUnfiltered],
@@ -263,7 +267,7 @@ function getDisplacedData (adm1) {
 
 function generateIdpStats (tot, drght,cfts,others) {
   $('#idpStats').html('');
-   $('#idpStats').append('<span>TOTAL IDPs: '+tot+'</span><span> Drought: '+drght+'</span><span> Conflicts: '+cfts+'</span><span> Other: '+others+'</span>');
+  $('#idpStats').append('TOTAL IDPs: <span class="num">'+formatNum(tot)+'</span> Drought: <span class="num">'+formatNum(drght)+'</span> Conflicts: <span class="num">'+formatNum(cfts)+'</span> Other: <span class="num">'+formatNum(others)+'</span>');
 } //generateIdpStats
 
 function selectRegion(region, name) {
@@ -300,9 +304,12 @@ function generateRiverLevels(riverLevel1Data, riverLevel2Data) {
     var severity = ['Current Level'];
     var severityMean = ['Long Term Average'];
     for (var j=0; j<riverData.length; j++){
-      date.push(riverData[j]['#date+reported']+'-'+riverData[j]['#indicator+num']);
-      severity.push(riverData[j]['#severity']);
-      severityMean.push(riverData[j]['#severity+mean']);
+      var d = new Date(riverData[j]['#date+reported']+'-'+riverData[j]['#indicator+num']);
+      if (d.getDay()==1){ //only show monday data to represent the week
+        date.push(riverData[j]['#date+reported']+'-'+riverData[j]['#indicator+num']);
+        severity.push(riverData[j]['#severity']);
+        severityMean.push(riverData[j]['#severity+mean']);
+      }
     }
 
     var chart = c3.generate({
@@ -325,7 +332,7 @@ function generateRiverLevels(riverLevel1Data, riverLevel2Data) {
         x: {
           type: 'timeseries',
           tick: {
-            count: 52,
+            //count: 52,
             format: '%m-%d'
           }
         },
