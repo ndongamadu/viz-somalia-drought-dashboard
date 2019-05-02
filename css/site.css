@@ -31,14 +31,16 @@ h1 {
 	font-family: 'Gotham-Bold';
 	font-size: 19px;
 	margin-top: 0;
+	text-transform: uppercase;
 }
 .description-text > p {
 	margin-bottom: 30px;
 }
 h2 {
 	font-family: 'Gotham-Bold';
-	font-size: 14px;
-	margin-top: 20px;
+	font-size: 13px;
+	margin-top: 0;
+	text-transform: uppercase;
 }
 h3{
 	font-family: 'SourceSansPro-Regular';
@@ -57,6 +59,14 @@ a {
 }
 strong {
 	font-family: 'Gotham-Bold';
+}
+label {
+	font-family: 'Gotham-Light';
+	font-size: 10px;
+	text-transform: uppercase;
+}
+select {
+	margin: 0 20px 0 5px;
 }
 .title {
 	display: flex;
@@ -84,42 +94,13 @@ strong {
 .container{
 	margin: 20px 0;
 }
-.graphs > div {
-	margin-bottom: 15px;
-	min-height: 420px;
-}
-.chart-container {
-	border: 1px solid #e6e7e8;
-	padding-top: 5px;
-}
-.header {    
-	background-color: #f47933;
-	display: inline-block;
-	margin-bottom: 0;
-	min-height: 82px;
-  padding: 1px 8px 0 45px;
-  background-repeat: no-repeat;
-  background-position: 8px 8px;
-}
-.header h4 {
-	color: #fff;
-}
-.timespan {
-	margin-top: 20px;
-}
-.keystat-container {
-	min-height: 84px;
-}
-.keystat {
-	text-align: right;
-	width: 75%;
-}
 .num{
-	color: #026cb6;
+	color: #418FDE;
 	display: inline-block;
 	font-family: 'Gotham-Light';
 	font-size: 30px;
-	font-weight: 700;
+	font-weight: 700;    
+	padding: 0 20px 0 3px;
 }
 .map-container {
 	display: none;
@@ -163,6 +144,10 @@ strong {
 }
 .c3-title {
 	font-size: 12px;
+}
+#idpStats {
+	margin: 10px 0;
+	text-align: center;
 }
 
 @media (min-width: 767px){
