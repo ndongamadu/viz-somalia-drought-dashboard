@@ -104,7 +104,6 @@ select {
 }
 .map-container {
 	display: none;
-	margin-bottom: 30px;
 }
 #map {
 	background-color: #D4E5F7;
@@ -120,10 +119,10 @@ select {
   border-radius: 5px;
   font-size:1em;
 }
-#adm1layer path {
+#adm2layer path {
 	cursor: pointer;
 }
-#adm1layer path.inactive {
+#adm2layer path.inactive {
 	cursor: default;
 }
 .regionLabel {
@@ -148,17 +147,27 @@ select {
 }
 #idpStats {
 	margin: 10px 0;
-	text-align: center;
+}
+#idpDates {
+	font-family: 'SourceSansPro-Regular';
+	font-weight: normal;
+	text-transform: capitalize;
 }
 .empty {
 	height: 100px;
 	position: relative;
 }
-.empty h2 {
+.empty .num {
 	position: absolute;
-	top: 50%;
+	top: 30%;
 	left: 50%;
 	transform: translate(-50%, -50%);
+}
+.mockup {
+	width: 100%;
+}
+.margin-bottom {
+	margin-bottom: 30px;
 }
 
 @media (min-width: 767px){

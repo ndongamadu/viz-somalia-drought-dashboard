@@ -26,42 +26,12 @@ function hxlProxyToJSON(input){
   return output;
 }
 
-function parseDates(tags,data){
-  var parseDateFormat = d3.time.format("%d-%m-%Y").parse;
-  data.forEach(function(d){
-    tags.forEach(function(t){
-      d[t] = parseDateFormat(d[t]);
-    });
-  });
-  return data;
-}
-
-function checkIntData(d){
-  return (isNaN(parseInt(d)) || parseInt(d)<0) ? 0 : parseInt(d);
-}
-
 var date_sort = function (d1, d2) {
-  if (d1['#date'] > d2['#date']) return 1;
-  if (d1['#date'] < d2['#date']) return -1;
+  if (d1.key > d2.key) return 1;
+  if (d1.key < d2.key) return -1;
   return 0;
-}
+};
 
-var target_date_sort = function (d1, d2) {
-  if (d1['#date+start'] > d2['#date+start']) return 1;
-  if (d1['#date+start'] < d2['#date+start']) return -1;
-  return 0;
-}
-
-function monthDiff(d1, d2) {
-  return d2.getMonth() - d1.getMonth() + 1;
-}
-
-function getMonthName(monthID) {
-  var monthArray = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-  return monthArray[monthID];
-}
-
-var formatComma = d3.format(',');
 var formatNum = d3.format('.2s');
 
 function generateDescription(descriptionData){
@@ -70,8 +40,10 @@ function generateDescription(descriptionData){
 }
 
 function updateCharts(region) {
+  var currentData = (idpLineChart.data.shown()[0]!==undefined) ? idpLineChart.data.shown()[0].id : '';
+  currentData = (currentData!=='Displaced') ? currentData : '';
   idpLineChart.load({
-    //unload: true, //refresh chart
+    unload: [currentData], //refresh chart
     columns: getDisplacedData(region)
   });
   idpLineChart.hide('Displaced');
@@ -82,7 +54,7 @@ var mapsvg,
 var fillColor = '#F8F4EC';
 var hoverColor = primaryColor;
 var inactiveFillColor = '#F8F4EC';
-function generateMap(adm1, countrieslabel, idpData){
+function generateMap(adm2, countrieslabel, idpData){
   //remove loader and show map
   $('.sp-circle').remove();
   $('.map-container').fadeIn();
@@ -100,16 +72,16 @@ function generateMap(adm1, countrieslabel, idpData){
     .scale(mapscale)
     .translate([width / 2, height / 2]);    
 
-  var g = mapsvg.append('g').attr('id','adm1layer');
+  var g = mapsvg.append('g').attr('id','adm2layer');
   var path = g.selectAll('path')
-    .data(adm1.features).enter()
+    .data(adm2.features).enter()
     .append('path')
     .attr('d', d3.geo.path().projection(mapprojection))
     .attr('id',function(d){
       return d.properties.admin2Name;
     })
     .attr('class',function(d){
-      var classname = (d.properties.admin2Name != '0') ? 'adm1' : 'inactive';
+      var classname = (d.properties.admin2Name != '0') ? 'adm2' : 'inactive';
       return classname;
     })
     .attr('fill', function(d) {
@@ -121,7 +93,7 @@ function generateMap(adm1, countrieslabel, idpData){
 
   //map tooltips
   var maptip = d3.select('#map').append('div').attr('class', 'd3-tip map-tip hidden');
-  path.filter('.adm1')
+  path.filter('.adm2')
     .on('mousemove', function(d,i) {
       $(this).attr('fill', hoverColor);
       var mouse = d3.mouse(mapsvg.node()).map( function(d) { return parseInt(d); } );
@@ -151,6 +123,7 @@ function generateMap(adm1, countrieslabel, idpData){
 
   $('.reset-btn').on('click', reset);
 
+  //IDP Chart
   cf = crossfilter(idpData);
   idpsDimension = cf.dimension(function(d){
     return [d['#adm2+dest+name'], d['#meta+category'], d['#date+reported']];
@@ -161,8 +134,12 @@ function generateMap(adm1, countrieslabel, idpData){
   var dim = cf.dimension(function(d){ return [d['#meta+category'],d['#date+reported']];});
   var grp = dim.group().reduceSum(function(d){ return d['#affected'];}).top(Infinity).sort(date_sort);
 
-  var maxDate = new Date(d3.max(idpData,function(d){return d['#date+reported'];})).getMonth();
-  var minDate = new Date(d3.min(idpData,function(d){return d['#date+reported'];})).getMonth();
+  var maxDate = new Date(d3.max(idpData,function(d){return d['#date+reported'];}));//.getMonth();
+  var minDate = new Date(d3.min(idpData,function(d){return d['#date+reported'];}));//.getMonth();
+
+  $('#idpDates').text('('+monthNames[minDate.getMonth()].substring(0,3)+' – '+monthNames[maxDate.getMonth()].substring(0,3)+' '+maxDate.getFullYear()+')');
+  /**
+  //disable date filters for now
   selectFrom = document.getElementById('dateFrom');
   selectEnd = document.getElementById('dateEnd');
   for (var i = minDate; i <= maxDate; i++) {
@@ -176,6 +153,7 @@ function generateMap(adm1, countrieslabel, idpData){
     i === maxDate ? option.selected = true : '';
     selectEnd.add( option );
   }
+  **/
 
   xUnfiltered.push('Date');
   yUnfiltered.push('Displaced');
@@ -204,6 +182,7 @@ function generateMap(adm1, countrieslabel, idpData){
 
   idpLineChart = c3.generate({
     bindto: '#idpChart',
+    padding: { left: 30 },
     size: {
       height: 320
     },
@@ -212,10 +191,14 @@ function generateMap(adm1, countrieslabel, idpData){
       columns: [xUnfiltered, yUnfiltered],
       colors: {'Displaced': primaryColor}
     },
-    // color: {
-    //   pattern: [primaryColor]
-    // },
+    color: {
+      pattern: [primaryColor]
+    },
     axis: {
+      y: {
+        padding: {top: 0, bottom: 0},
+        min: 0
+      },
       x: {
         type: 'timeseries',
         tick: {
@@ -231,20 +214,14 @@ function generateMap(adm1, countrieslabel, idpData){
       }
     },
   });
+
 }// generateMap
 
 var monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
 
-var date_sort = function (d1, d2) {
-    if (d1.key > d2.key) return 1;
-    if (d1.key < d2.key) return -1;
-    return 0;
-};
-
-
 function getDisplacedData (adm2) {
-  var fromDate = $('#dateFrom option:selected').text();
-  var endDate = $('#dateEnd option:selected').text();
+  // var fromDate = $('#dateFrom option:selected').text();
+  // var endDate = $('#dateEnd option:selected').text();
 
   var dateArray = [],
       affectedArray = [];
@@ -277,30 +254,35 @@ function getDisplacedData (adm2) {
 
 function generateIdpStats (tot, drght,cfts,others) {
   $('#idpStats').html('');
-  $('#idpStats').append('TOTAL IDPs: <span class="num">'+Number(tot)+'</span> Drought: <span class="num">'+Number(drght)+'</span> Conflicts: <span class="num">'+Number(cfts)+'</span> Other: <span class="num">'+Number(others)+'</span>');
+  $('#idpStats').append('<label>Total IDPs:</label> <span class="num">'+Number(tot)+'</span> <label>Drought:</label> <span class="num">'+Number(drght)+'</span> <label>Conflicts:</label> <span class="num">'+Number(cfts)+'</span> <label>Other:</label> <span class="num">'+Number(others)+'</span>');
 } //generateIdpStats
 
 function selectRegion(region, name) {
   region.siblings().data('selected', false);
-  region.siblings('.adm1').attr('fill', fillColor);
-  region.attr('fill', hoverColor);
+  region.siblings('.adm2').attr('fill', fillColor);
+  region.attr('fill', primaryColor);
   region.data('selected', true);
   $('.regionLabel > div > strong').html(name);
   updateCharts(name);
 }
 
 function reset() {
-  $('#adm1layer').children('.adm1').attr('fill', fillColor);
+  $('#adm2layer').children('.adm2').attr('fill', fillColor);
   $('.regionLabel > div > strong').html('All Regions');
-  var chartObjects = idpLineChart.data.names();
-  //remove Displaced in chartObjects
 
+  //update IDP stats
   generateIdpStats(total,totalDrought,totalConflict,totalOther);
-  idpLineChart.hide();
-  idpLineChart.toggle('Displaced').focus('Displaced');
-  updateCharts('');
-  return false;
 
+  //reset IDP chart
+  if (idpLineChart.data.shown()[0]!==undefined) {
+    var currentLine = idpLineChart.data.shown()[0].id;
+    currentLine = (currentLine!=='Displaced') ? currentLine : '';
+    idpLineChart.unload(currentLine);
+  }
+  idpLineChart.show();
+  idpLineChart.flush();
+
+  return false;
 }
 
 /** River Level Charts **/
@@ -314,9 +296,10 @@ function generateRiverLevels(riverLevel1Data, riverLevel2Data) {
     var severity = ['Current Level'];
     var severityMean = ['Long Term Average'];
     for (var j=0; j<riverData.length; j++){
-      var d = new Date(riverData[j]['#date+reported']+'-'+riverData[j]['#indicator+num']);
+      var now = new Date();
+      var d = new Date(now.getFullYear()+'-'+riverData[j]['#date+reported']+'-'+riverData[j]['#indicator+num']);
       if (d.getDay()==1){ //only show monday data to represent the week
-        date.push(riverData[j]['#date+reported']+'-'+riverData[j]['#indicator+num']);
+        date.push(d);
         severity.push(riverData[j]['#severity']);
         severityMean.push(riverData[j]['#severity+mean']);
       }
@@ -325,13 +308,13 @@ function generateRiverLevels(riverLevel1Data, riverLevel2Data) {
     var chart = c3.generate({
       bindto: riverChart,
       title: { text: riverName },
-      padding: { top: 20 },
+      padding: { top: 20, left: 24 },
       size: {
         height: 200
       },
       data: {
         x: 'x',
-        xFormat: '%b-%d',
+        xFormat: '%Y-%m-%d',
         columns: [date, severity, severityMean],       
         colors: {
           'Current Level': secondaryColor,
@@ -342,7 +325,7 @@ function generateRiverLevels(riverLevel1Data, riverLevel2Data) {
         x: {
           type: 'timeseries',
           tick: {
-            format: '%m-%d'
+            format: '%Y-%m-%d'
           }
         },
         y: {
@@ -422,11 +405,10 @@ $.when(descriptionCall).then(function(descriptionArgs){
 });
 
 //map data
-$.when(adm1Call, somCall, countrieslabelCall, idpCall).then(function(adm1Args, somArgs, countrieslabelArgs, idpArgs){
+$.when(somCall, countrieslabelCall, idpCall).then(function(somArgs, countrieslabelArgs, idpArgs){
   var countrieslabel = countrieslabelArgs[0].countries;
   var idps = hxlProxyToJSON(idpArgs[0]);
   //generateDisplacedData(idps);
-  console.log(somArgs[0])
   generateMap(somArgs[0], countrieslabel, idps);
 
 });
