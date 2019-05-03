@@ -277,7 +277,7 @@ function getDisplacedData (adm2) {
 
 function generateIdpStats (tot, drght,cfts,others) {
   $('#idpStats').html('');
-  $('#idpStats').append('TOTAL IDPs: <span class="num">'+formatNum(tot)+'</span> Drought: <span class="num">'+formatNum(drght)+'</span> Conflicts: <span class="num">'+formatNum(cfts)+'</span> Other: <span class="num">'+formatNum(others)+'</span>');
+  $('#idpStats').append('TOTAL IDPs: <span class="num">'+Number(tot)+'</span> Drought: <span class="num">'+Number(drght)+'</span> Conflicts: <span class="num">'+Number(cfts)+'</span> Other: <span class="num">'+Number(others)+'</span>');
 } //generateIdpStats
 
 function selectRegion(region, name) {
@@ -396,7 +396,7 @@ var riverLevel2Call = $.ajax({
 
 var idpCall = $.ajax({ 
   type: 'GET', 
-  url: 'https://proxy.hxlstandard.org/data.json?strip-headers=on&url=https%3A%2F%2Fdocs.google.com%2Fspreadsheets%2Fd%2F12o4Si6pqbLsjkxuWpZjtC8sIvSFpD7_DtkrMUAbt32I%2Fedit%23gid%3D1239684438',
+  url: 'https://proxy.hxlstandard.org/data.json?strip-headers=on&url=https%3A%2F%2Fdocs.google.com%2Fspreadsheets%2Fd%2F12o4Si6pqbLsjkxuWpZjtC8sIvSFpD7_DtkrMUAbt32I%2Fedit%23gid%3D1239684438&force=on',
   dataType: 'json',
 });
 
