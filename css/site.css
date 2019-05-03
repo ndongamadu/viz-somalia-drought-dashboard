@@ -150,6 +150,16 @@ select {
 	margin: 10px 0;
 	text-align: center;
 }
+.empty {
+	height: 100px;
+	position: relative;
+}
+.empty h2 {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+}
 
 @media (min-width: 767px){
 	.container{
