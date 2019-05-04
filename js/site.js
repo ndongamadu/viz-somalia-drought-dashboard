@@ -57,7 +57,7 @@ var inactiveFillColor = '#F8F4EC';
 function generateMap(adm2, countrieslabel, idpData){
   //remove loader and show map
   $('.sp-circle').remove();
-  $('.map-container').fadeIn();
+  $('.row').fadeIn();
 
   var width = $('#map').width();
   var height = 400;
@@ -66,7 +66,7 @@ function generateMap(adm2, countrieslabel, idpData){
     .attr('width', width)
     .attr('height', height);
 
-  var mapscale = ($('body').width()<768) ? width*6.7 : width*3.3;
+  var mapscale = ($('body').width()<768) ? width*4 : width*3.3;
   var mapprojection = d3.geo.mercator()
     .center([47, 5])
     .scale(mapscale)
