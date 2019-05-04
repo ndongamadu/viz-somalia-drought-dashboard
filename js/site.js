@@ -57,7 +57,7 @@ var inactiveFillColor = '#F8F4EC';
 function generateMap(adm2, countrieslabel, idpData){
   //remove loader and show map
   $('.sp-circle').remove();
-  $('.row').fadeIn();
+  $('.row').css('opacity', 1);
 
   var width = $('#map').width();
   var height = 400;
