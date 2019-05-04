@@ -69,10 +69,11 @@ select {
 	margin: 0 20px 0 5px;
 }
 .row {
-	display: none;
+	opacity: 0;
+	transition: all ease 0.3;
 }
 .row.introduction {
-	display: block;
+	opacity: 1;
 }
 .title {
 	display: flex;
