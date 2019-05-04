@@ -68,6 +68,12 @@ label {
 select {
 	margin: 0 20px 0 5px;
 }
+.row {
+	display: none;
+}
+.row.introduction {
+	display: block;
+}
 .title {
 	display: flex;
 }
@@ -92,7 +98,7 @@ select {
 	font-size: 12px;
 }
 .container{
-	margin: 20px 0;
+	margin: 20px auto;
 }
 .num{
 	color: #418FDE;
@@ -101,9 +107,6 @@ select {
 	font-size: 28px;
 	font-weight: 700;    
 	padding: 0 20px 0 3px;
-}
-.map-container {
-	display: none;
 }
 #map {
 	background-color: #D4E5F7;
@@ -128,7 +131,7 @@ select {
 .regionLabel {
 	position: absolute;
 	z-index: 2;
-	bottom: 20px;
+	bottom: 65px;
 	right: 35px;
 	text-align: right;
 }
@@ -168,19 +171,6 @@ select {
 }
 .margin-bottom {
 	margin-bottom: 30px;
-}
-
-@media (min-width: 767px){
-	.container{
-		margin: 20px auto;
-	}
-	.keystat {
-		text-align: right;
-		width: 64%;
-	}
-	.regionLabel {
-		bottom: 65px;
-	}
 }
 
 
