@@ -27,8 +27,8 @@ function hxlProxyToJSON(input){
 }
 
 var date_sort = function (d1, d2) {
-  if (d1.key > d2.key) return 1;
-  if (d1.key < d2.key) return -1;
+  if (d1.key[1] > d2.key[1]) return 1;
+  if (d1.key[1] < d2.key[1]) return -1;
   return 0;
 };
 
@@ -126,17 +126,20 @@ function generateMap(adm2, countrieslabel, idpData){
   //IDP Chart
   cf = crossfilter(idpData);
   idpsDimension = cf.dimension(function(d){
-    return [d['#adm2+dest+name'], d['#meta+category'], d['#date+reported']];
+    return [d['#adm2+dest+name'],d['#date+reported']];
   });
 
   idpsGroup = idpsDimension.group().reduceSum(function(d){ return d['#affected']; }).top(Infinity).sort(date_sort);
 
-  var dim = cf.dimension(function(d){ return [d['#meta+category'],d['#date+reported']];});
-  var grp = dim.group().reduceSum(function(d){ return d['#affected'];}).top(Infinity).sort(date_sort);
+  var kfDim = cf.dimension(function(d){ return [d['#adm2+dest+name'], d['#meta+category']]; });
+  keyFiguresGroup = kfDim.group().reduceSum(function(d){ return d['#affected']; }).top(Infinity);
 
-  var maxDate = new Date(d3.max(idpData,function(d){return d['#date+reported'];}));//.getMonth();
-  var minDate = new Date(d3.min(idpData,function(d){return d['#date+reported'];}));//.getMonth();
+  var dim = cf.dimension(function(d){ return d['#date+reported'];});
+  var grp = dim.group().reduceSum(function(d){ return d['#affected'];}).top(Infinity).sort(function(a,b){ return a.key<b.key ? -1 : a.key>b.key ? 1 : 0;});
 
+
+  var maxDate = new Date(d3.max(idpData,function(d){return d['#meta+date']+'-01';}));//.getMonth();
+  var minDate = new Date(d3.min(idpData,function(d){return d['#meta+date']+'-01';}));//.getMonth();
   $('#idpDates').text('('+monthNames[minDate.getMonth()].substring(0,3)+' – '+monthNames[maxDate.getMonth()].substring(0,3)+' '+maxDate.getFullYear()+')');
   /**
   //disable date filters for now
@@ -157,28 +160,13 @@ function generateMap(adm2, countrieslabel, idpData){
 
   xUnfiltered.push('Date');
   yUnfiltered.push('Displaced');
-  totalDrought = 0;
-  totalConflict = 0;
-  totalOther = 0;
-  total = 0;
 
   for (var i = 0; i < grp.length; i++) {
-    //Drought related
-    total += grp[i].value
-    if (grp[i].key[0]==='Drought related') {
-      xUnfiltered.push(grp[i].key[1]);
-      yUnfiltered.push(grp[i].value);
-      totalDrought += grp[i].value;
-    //Conflict/Insecurity
-    } else if(grp[i].key[0]==='Conflict/Insecurity') {
-      totalConflict +=grp[i].value;
-    //Other
-    } else if(grp[i].key[0]==='Other'){
-      totalOther += grp[i].value;
-    }
-
+    xUnfiltered.push(grp[i].key);
+    yUnfiltered.push(grp[i].value);
   }
-  generateIdpStats(total,totalDrought,totalConflict,totalOther);
+
+  generateIdpStats();
 
   idpLineChart = c3.generate({
     bindto: '#idpChart',
@@ -189,7 +177,8 @@ function generateMap(adm2, countrieslabel, idpData){
     data: {
       x: 'Date',
       columns: [xUnfiltered, yUnfiltered],
-      colors: {'Displaced': primaryColor}
+      colors: {'Displaced': primaryColor},
+      type: 'line'
     },
     color: {
       pattern: [primaryColor]
@@ -200,10 +189,10 @@ function generateMap(adm2, countrieslabel, idpData){
         min: 0
       },
       x: {
-        type: 'timeseries',
+        type: 'category',
         tick: {
-          format: '%Y-%m-%d',
-          count: 52,
+          // format: '%Y-%m-%d',
+          //count: 52,
           outer: false
         }
       }
@@ -220,39 +209,47 @@ function generateMap(adm2, countrieslabel, idpData){
 var monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
 
 function getDisplacedData (adm2) {
-  // var fromDate = $('#dateFrom option:selected').text();
-  // var endDate = $('#dateEnd option:selected').text();
 
   var dateArray = [],
       affectedArray = [];
-  var totalDrought = 0;
-  var totalConflict = 0;
-  var totalOther = 0;
-  var total = 0;
   dateArray.push('Date');
   affectedArray.push(adm2);
 
   for (var i = 0; i < idpsGroup.length; i++) {
     if (idpsGroup[i].key[0]===adm2) {
-      total += idpsGroup[i].value;
-      if (idpsGroup[i].key[1]==='Drought related') {
-        dateArray.push(idpsGroup[i].key[2]);
-        affectedArray.push(idpsGroup[i].value);
-        totalDrought += idpsGroup[i].value;
-      } else if (idpsGroup[i].key[1]==='Conflict/Insecurity') {
-        totalConflict += idpsGroup[i].value;
-
-      } else if (idpsGroup[i].key[1]==='Other') {
-        totalOther += idpsGroup[i].value;
-      }
+      dateArray.push(idpsGroup[i].key[1]);
+      affectedArray.push(idpsGroup[i].value);
     }
   }
-  generateIdpStats(total,totalDrought,totalConflict,totalOther);
+  generateIdpStats(adm2);
 
   return [dateArray, affectedArray]
 }//generateDisplacedData
 
-function generateIdpStats (tot, drght,cfts,others) {
+// Conflict/Insecurity, Drought related ,Other
+function generateIdpStats (adm2) {
+  var tot = 0,
+      drght = 0,
+      cfts = 0,
+      others = 0;
+  if (adm2===undefined) {
+    for (var i = 0; i < keyFiguresGroup.length; i++) {
+      tot += keyFiguresGroup[i].value;
+      keyFiguresGroup[i].key[1]==='Conflict/Insecurity' ? cfts += keyFiguresGroup[i].value :
+      keyFiguresGroup[i].key[1]==='Drought related' ? drght += keyFiguresGroup[i].value :
+      keyFiguresGroup[i].key[1]==='Other' ? others += keyFiguresGroup[i].value : '';
+    }
+  } else {
+    for (var i = 0; i < keyFiguresGroup.length; i++) {
+      if (keyFiguresGroup[i].key[0]===adm2) {
+        tot += keyFiguresGroup[i].value;
+        keyFiguresGroup[i].key[1]==='Conflict/Insecurity' ? cfts += keyFiguresGroup[i].value :
+        keyFiguresGroup[i].key[1]==='Drought related' ? drght += keyFiguresGroup[i].value :
+        keyFiguresGroup[i].key[1]==='Other' ? others += keyFiguresGroup[i].value : '';
+      }
+    }
+  }
+
   $('#idpStats').html('');
   $('#idpStats').append('<label>Total IDPs:</label> <span class="num">'+Number(tot)+'</span> <label>Drought:</label> <span class="num">'+Number(drght)+'</span> <label>Conflicts:</label> <span class="num">'+Number(cfts)+'</span> <label>Other:</label> <span class="num">'+Number(others)+'</span>');
 } //generateIdpStats
@@ -271,7 +268,7 @@ function reset() {
   $('.regionLabel > div > strong').html('All Regions');
 
   //update IDP stats
-  generateIdpStats(total,totalDrought,totalConflict,totalOther);
+  generateIdpStats();
 
   //reset IDP chart
   if (idpLineChart.data.shown()[0]!==undefined) {
@@ -379,20 +376,17 @@ var riverLevel2Call = $.ajax({
 
 var idpCall = $.ajax({ 
   type: 'GET', 
-  url: 'https://proxy.hxlstandard.org/data.json?strip-headers=on&url=https%3A%2F%2Fdocs.google.com%2Fspreadsheets%2Fd%2F12o4Si6pqbLsjkxuWpZjtC8sIvSFpD7_DtkrMUAbt32I%2Fedit%23gid%3D1239684438&force=on',
+  url: 'https://proxy.hxlstandard.org/data.json?strip-headers=on&url=https%3A%2F%2Fdocs.google.com%2Fspreadsheets%2Fd%2F12o4Si6pqbLsjkxuWpZjtC8sIvSFpD7_DtkrMUAbt32I%2Fedit%23gid%3D974093512',
   dataType: 'json',
 });
 
 var cf,
     idpsDimension,
     idpsGroup,
+    keyFiguresGroup,
     idpLineChart,
     xUnfiltered = [],
-    yUnfiltered =[],
-    totalDrought,
-    totalConflict,
-    totalOther,
-    total;
+    yUnfiltered =[];
 
 //colors
 var primaryColor = '#418FDE',
@@ -408,7 +402,6 @@ $.when(descriptionCall).then(function(descriptionArgs){
 $.when(somCall, countrieslabelCall, idpCall).then(function(somArgs, countrieslabelArgs, idpArgs){
   var countrieslabel = countrieslabelArgs[0].countries;
   var idps = hxlProxyToJSON(idpArgs[0]);
-  //generateDisplacedData(idps);
   generateMap(somArgs[0], countrieslabel, idps);
 
 });
