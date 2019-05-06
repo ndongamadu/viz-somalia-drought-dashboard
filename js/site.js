@@ -286,6 +286,7 @@ function reset() {
 function generateRiverLevels(riverLevel1Data, riverLevel2Data) {
   var riverDataArray = [riverLevel1Data, riverLevel2Data];
   for (var i=0; i<riverDataArray.length; i++){
+    var weekNum = 0;
     var riverData = riverDataArray[i];
     var riverChart = '#riverLevel'+ (i+1) +'Chart';
     var riverName = (i==0) ? 'Shabelle River' : 'Juba River';
@@ -296,7 +297,8 @@ function generateRiverLevels(riverLevel1Data, riverLevel2Data) {
       var now = new Date();
       var d = new Date(now.getFullYear()+'-'+riverData[j]['#date+reported']+'-'+riverData[j]['#indicator+num']);
       if (d.getDay()==1){ //only show monday data to represent the week
-        date.push(d);
+        weekNum++;
+        date.push('W'+weekNum);
         severity.push(riverData[j]['#severity']);
         severityMean.push(riverData[j]['#severity+mean']);
       }
@@ -311,18 +313,17 @@ function generateRiverLevels(riverLevel1Data, riverLevel2Data) {
       },
       data: {
         x: 'x',
-        xFormat: '%Y-%m-%d',
         columns: [date, severity, severityMean],       
         colors: {
           'Current Level': secondaryColor,
           'Long Term Average': primaryColor
         }
       },
-      axis: {
+      axis: {     
         x: {
-          type: 'timeseries',
+          type: 'category',
           tick: {
-            format: '%Y-%m-%d'
+            centered: true
           }
         },
         y: {
@@ -344,11 +345,11 @@ var somCall = $.ajax({
   dataType: 'json',
 });
 
-var adm1Call = $.ajax({ 
-  type: 'GET', 
-  url: 'data/som_adm1.json',
-  dataType: 'json',
-});
+// var adm1Call = $.ajax({ 
+//   type: 'GET', 
+//   url: 'data/som_adm1.json',
+//   dataType: 'json',
+// });
 
 var countrieslabelCall = $.ajax({ 
   type: 'GET', 
