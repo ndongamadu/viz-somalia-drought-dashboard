@@ -80,17 +80,18 @@ select {
   border-right: 1px solid #418FDE;
   margin-right: 10px;
   padding-right: 10px;
+  width: 100px;
 }
 .title {
 	display: flex;
 }
 .title h1 {
-	margin-top: 4px;
+	margin-top: 3px;
 }
 .title span {
 	font-style: italic;
 	margin-left: auto;
-	margin-top: 4px;
+	margin-top: 3px;
 }
 .icon-ocha {
 	color: #046bb5;
