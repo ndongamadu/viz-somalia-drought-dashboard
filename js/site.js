@@ -51,7 +51,7 @@ function updateCharts(region) {
 
 var mapsvg,
     centered;
-var fillColor = '#F8F4EC';
+var fillColor = '#dddddd';
 var hoverColor = primaryColor;
 var inactiveFillColor = '#F8F4EC';
 function generateMap(adm2, countrieslabel, idpData){
@@ -66,7 +66,7 @@ function generateMap(adm2, countrieslabel, idpData){
     .attr('width', width)
     .attr('height', height);
 
-  var mapscale = ($('body').width()<768) ? width*4 : width*3.3;
+  var mapscale = ($('body').width()<768) ? width*4 : width*2.9;
   var mapprojection = d3.geo.mercator()
     .center([47, 5])
     .scale(mapscale)
@@ -162,7 +162,8 @@ function generateMap(adm2, countrieslabel, idpData){
   yUnfiltered.push('Displaced');
 
   for (var i = 0; i < grp.length; i++) {
-    xUnfiltered.push(grp[i].key);
+    var mm = Number(grp[i].key.split("-")[1]);
+    xUnfiltered.push('W'+mm);
     yUnfiltered.push(grp[i].value);
   }
 
@@ -191,8 +192,7 @@ function generateMap(adm2, countrieslabel, idpData){
       x: {
         type: 'category',
         tick: {
-          // format: '%Y-%m-%d',
-          //count: 52,
+          centered: true,
           outer: false
         }
       }
@@ -217,7 +217,7 @@ function getDisplacedData (adm2) {
 
   for (var i = 0; i < idpsGroup.length; i++) {
     if (idpsGroup[i].key[0]===adm2) {
-      dateArray.push(idpsGroup[i].key[1]);
+      dateArray.push('W'+Number(idpsGroup[i].key[1].split('-')[1]));
       affectedArray.push(idpsGroup[i].value);
     }
   }
@@ -341,7 +341,7 @@ function generateRiverLevels(riverLevel1Data, riverLevel2Data) {
 
 var somCall = $.ajax({ 
   type: 'GET', 
-    url: 'data/som-adm2.json',
+    url: 'data/som-adm2-neighbour-topo.json',
   dataType: 'json',
 });
 
@@ -403,7 +403,8 @@ $.when(descriptionCall).then(function(descriptionArgs){
 $.when(somCall, countrieslabelCall, idpCall).then(function(somArgs, countrieslabelArgs, idpArgs){
   var countrieslabel = countrieslabelArgs[0].countries;
   var idps = hxlProxyToJSON(idpArgs[0]);
-  generateMap(somArgs[0], countrieslabel, idps);
+  var som = topojson.feature(somArgs[0],somArgs[0].objects.som_adm2_neighbour);
+  generateMap(som, countrieslabel, idps);
 
 });
 
