@@ -353,6 +353,15 @@ function generateRiverLevels(riverLevel1Data, riverLevel2Data) {
   }
 }
 
+
+/** Key Figures **/
+function generateKeyFigures(keyFigureData) {
+  console.log(keyFigureData)
+  for (var i=0; i<keyFigureData.length; i++) {
+    $('#keyFigures').append('<div class="col-md-3"><h3>'+keyFigureData[i]['#indicator']+'</h3><div class="key-figure"><span class="num">'+keyFigureData[i]['#affected+num']+'</span></div></div>');
+  }
+}
+
 var somCall = $.ajax({ 
   type: 'GET', 
     url: 'data/som-adm2-neighbour-topo.json',
@@ -395,6 +404,12 @@ var idpCall = $.ajax({
   dataType: 'json',
 });
 
+var keyFiguresCall = $.ajax({
+  type: 'GET',
+  url: 'https://proxy.hxlstandard.org/data.json?strip-headers=on&force=on&url=https%3A%2F%2Fdocs.google.com%2Fspreadsheets%2Fd%2F19U-C50J8OvvuvtAgJQ09eWJ3BAxxAfZlU5qH4SvAdwg%2Fedit%23gid%3D0',
+  dataType: 'json',
+});
+
 var cf,
     idpsDimension,
     idpsGroup,
@@ -427,5 +442,11 @@ $.when(riverLevel1Call, riverLevel2Call).then(function(riverLevel1Args, riverLev
   var riverLevel1Data = hxlProxyToJSON(riverLevel1Args[0]);
   var riverLevel2Data = hxlProxyToJSON(riverLevel2Args[0]);
   generateRiverLevels(riverLevel1Data, riverLevel2Data);
+});
+
+//indicator data
+$.when(keyFiguresCall).then(function(keyFiguresArgs){
+  var keyFigures = hxlProxyToJSON(keyFiguresArgs);
+  generateKeyFigures(keyFigures);
 });
 
