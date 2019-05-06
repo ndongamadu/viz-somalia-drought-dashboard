@@ -173,5 +173,9 @@ select {
 .margin-bottom {
 	margin-bottom: 30px;
 }
-
+.errorLabel {
+	color: #ECA154;    
+	font-family: 'Gotham-Bold';
+	display: none;
+}
 
