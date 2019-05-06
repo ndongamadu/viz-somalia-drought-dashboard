@@ -167,16 +167,6 @@ select {
 	font-weight: normal;
 	text-transform: capitalize;
 }
-.empty {
-	height: 100px;
-	position: relative;
-}
-.empty .num {
-	position: absolute;
-	top: 30%;
-	left: 50%;
-	transform: translate(-50%, -50%);
-}
 .mockup {
 	width: 100%;
 }
@@ -187,5 +177,8 @@ select {
 	color: #ECA154;    
 	font-family: 'Gotham-Bold';
 	display: none;
+}
+.key-figure {
+	margin-bottom: 30px;
 }
 
