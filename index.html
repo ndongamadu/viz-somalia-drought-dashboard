@@ -1,6 +1,6 @@
 <html>
   <head>
-    <title>Somalia Drought Dashboard</title>
+    <title>Somalia Drought Response Dashboard</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">  
     <link rel="stylesheet" href="css/bootstrap.min.css">
@@ -38,7 +38,10 @@
           </div>
         </div>
         <div class="col-md-5 map-container">
-          <div class="regionLabel"><div>Currently filtering by: <strong>All Districts</strong></div><a href="#" class="reset-btn small">reset</a></div>
+          <div class="regionLabel">
+            <div class="errorLabel">There is no data for <span></span></div>
+            <div class="filterLabel">Currently filtering by: <strong>All Districts</strong></div><a href="#" class="reset-btn small">reset</a>
+          </div>
           <div id="map"></div>
           <p class="small"><em>The boundaries and names shown and the designations used on this map do not imply official endorsement or acceptance by the United Nations.</em></p>
         </div>

@@ -39,12 +39,12 @@ function generateDescription(descriptionData){
   $('.description-text p').text(descriptionData[0]['#description'])
 }
 
-function updateCharts(region) {
+function updateCharts(displacedData) {
   var currentData = (idpLineChart.data.shown()[0]!==undefined) ? idpLineChart.data.shown()[0].id : '';
   currentData = (currentData!=='Displaced') ? currentData : '';
   idpLineChart.load({
     unload: [currentData], //refresh chart
-    columns: getDisplacedData(region)
+    columns: displacedData
   });
   idpLineChart.hide('Displaced');
 }
@@ -208,8 +208,7 @@ function generateMap(adm2, countrieslabel, idpData){
 
 var monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
 
-function getDisplacedData (adm2) {
-
+function getDisplacedData(adm2) {
   var dateArray = [],
       affectedArray = [];
   dateArray.push('Date');
@@ -221,9 +220,15 @@ function getDisplacedData (adm2) {
       affectedArray.push(idpsGroup[i].value);
     }
   }
-  generateIdpStats(adm2);
 
-  return [dateArray, affectedArray]
+  //only update chart if there is data this region
+  if (affectedArray.length<=1) {
+    return null;
+  }
+  else {
+    generateIdpStats(adm2);
+    return [dateArray, affectedArray];
+  }
 }//generateDisplacedData
 
 // Conflict/Insecurity, Drought related ,Other
@@ -251,21 +256,30 @@ function generateIdpStats (adm2) {
   }
 
   $('#idpStats').html('');
-  $('#idpStats').append('<label>Total IDPs:</label> <span class="num">'+Number(tot)+'</span> <label>Drought:</label> <span class="num">'+Number(drght)+'</span> <label>Conflicts:</label> <span class="num">'+Number(cfts)+'</span> <label>Other:</label> <span class="num">'+Number(others)+'</span>');
+  $('#idpStats').append('<label>Total IDPs:</label> <span class="num">'+formatNum(tot)+'</span> <label>Drought:</label> <span class="num">'+formatNum(drght)+'</span> <label>Conflicts:</label> <span class="num">'+formatNum(cfts)+'</span> <label>Other:</label> <span class="num">'+formatNum(others)+'</span>');
 } //generateIdpStats
 
 function selectRegion(region, name) {
-  region.siblings().data('selected', false);
-  region.siblings('.adm2').attr('fill', fillColor);
-  region.attr('fill', primaryColor);
-  region.data('selected', true);
-  $('.regionLabel > div > strong').html(name);
-  updateCharts(name);
+  var displacedData = getDisplacedData(name);
+  if (displacedData!=null) {  
+    region.siblings().data('selected', false);
+    region.siblings('.adm2').attr('fill', fillColor);
+    region.attr('fill', primaryColor);
+    region.data('selected', true);
+    $('.regionLabel > .errorLabel').hide();
+    $('.regionLabel > .filterLabel > strong').html(name);
+    updateCharts(displacedData);
+  }
+  else {
+    $('.regionLabel > .errorLabel').show();
+    $('.regionLabel > .errorLabel span').html(name);
+  }
 }
 
 function reset() {
   $('#adm2layer').children('.adm2').attr('fill', fillColor);
-  $('.regionLabel > div > strong').html('All Regions');
+  $('.regionLabel > .filterLabel > strong').html('All Regions');
+  $('.regionLabel > .errorLabel').hide();
 
   //update IDP stats
   generateIdpStats();
