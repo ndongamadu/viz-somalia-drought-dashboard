@@ -287,8 +287,8 @@ function reset() {
   //reset IDP chart
   if (idpLineChart.data.shown()[0]!==undefined) {
     var currentLine = idpLineChart.data.shown()[0].id;
-    currentLine = (currentLine!=='Displaced') ? currentLine : '';
-    idpLineChart.unload(currentLine);
+    currentLine = (currentLine!=='Displaced') ? currentLine : null;
+    if (currentLine!=null) idpLineChart.unload(currentLine);
   }
   idpLineChart.show();
   idpLineChart.flush();
@@ -353,10 +353,8 @@ function generateRiverLevels(riverLevel1Data, riverLevel2Data) {
   }
 }
 
-
 /** Key Figures **/
 function generateKeyFigures(keyFigureData) {
-  console.log(keyFigureData)
   for (var i=0; i<keyFigureData.length; i++) {
     $('#keyFigures').append('<div class="col-md-3"><h3>'+keyFigureData[i]['#indicator']+'</h3><div class="key-figure"><span class="num">'+keyFigureData[i]['#affected+num']+'</span></div></div>');
   }
