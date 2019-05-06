@@ -173,7 +173,7 @@ function generateMap(adm2, countrieslabel, idpData){
     bindto: '#idpChart',
     padding: { left: 30 },
     size: {
-      height: 320
+      height: 350
     },
     data: {
       x: 'Date',
