@@ -94,7 +94,7 @@ select {
 	margin-top: 3px;
 }
 .icon-ocha {
-	color: #046bb5;
+	color: #FFF;
 	font-size: 24px;
 	left: 25px;
 	position: absolute;
@@ -182,4 +182,30 @@ select {
 .key-figure {
 	margin-bottom: 30px;
 }
+.chart-container {
+  border: 1px solid #e6e7e8;
+  padding-top: 5px;
+}
+.chart-header {
+	background-color: #418FDE;
+  display: inline-block;
+  margin-bottom: 0;
+  min-height: 41px;
+  padding: 1px 8px 0 45px;
+  background-repeat: no-repeat;
+  background-position: 8px 8px;
+  width: 100%;
+}
+.chart-header h4 {
+  color: #fff;
+  margin-top: 13px;
 
+}
+.chart-header h3 {
+  color: #fff;
+  min-height: 50px;
+}
+
+.sectorChart > div {
+    margin-bottom: 15px;
+}
