@@ -389,18 +389,19 @@ function generateSectorData (data) {
 
     }
     var sectorName= (sectors[i] ==='FOOD SECURITY') ? indicatorName[0] = 'foodsecuritycluster' : sectors[i].toLowerCase();
-    $('.sectorChart').append('<div class="col-sm-6 col-md-4" id="indicator'+i+'"><div class="chart-header"><i class="icon-ocha icon-'+sectorName+'"></i><h4>'+sectors[i]+'</h4><h3>'+indicatorName[0]+'</h3></div><div class="chart-container" id="chart'+i+'""></div>');
+    $('.sectorChart').append('<div class="col-sm-6 col-md-4" id="indicator'+i+'"><div class="chart-header"><h3><span>'+sectors[i]+':</span> '+indicatorName[0]+'</h3></div><div class="chart-container"><div id="chart'+i+'""></div></div>');
     var chartType = 'line';
     var chart = c3.generate({
       bindto: '#chart'+i,
-      size: {height: 200},
+      size:  { height: 180 },
+      padding: { top: 10, right: 35 },
       data: {
         x: 'x',
         type: chartType,
         columns: [dates, reachedArr, targetArr],
         colors: {
-          Target: '#659ad2',
-          Reached: '#f47933'
+          Target: primaryColor,
+          Reached: secondaryColor
         }
       },
       axis: {
@@ -419,7 +420,7 @@ function generateSectorData (data) {
             format: d3.format('.2s')
           },
           min: 0,
-          padding: {bottom: 0}
+          padding: { bottom: 0 }
         }
       },
       tooltip: {
@@ -427,7 +428,6 @@ function generateSectorData (data) {
           value: d3.format(',')
         }
       },
-      padding: {right: 35}
     });
     $('#chart'+i).data('chartObj', chart);
   }

@@ -184,26 +184,24 @@ select {
 }
 .chart-container {
   border: 1px solid #e6e7e8;
-  padding-top: 5px;
+  padding: 5px 0 10px;
+  margin-bottom: 15px;
 }
 .chart-header {
 	background-color: #418FDE;
   display: inline-block;
   margin-bottom: 0;
-  min-height: 41px;
-  padding: 1px 8px 0 45px;
-  background-repeat: no-repeat;
-  background-position: 8px 8px;
+  padding: 15px;
   width: 100%;
 }
-.chart-header h4 {
-  color: #fff;
-  margin-top: 13px;
-
-}
 .chart-header h3 {
-  color: #fff;
-  min-height: 50px;
+  color: #FFF;
+  margin-bottom: 0;
+  min-height: 45px;
+}
+.chart-header h3 span {
+	font-family: 'Gotham-Bold';
+	text-transform: uppercase;
 }
 
 .sectorChart > div {
