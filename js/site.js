@@ -359,7 +359,10 @@ function generateKeyFigures(keyFigureData) {
     $('#keyFigures').append('<div class="col-md-3"><h3>'+keyFigureData[i]['#indicator']+'</h3><div class="key-figure"><span class="num">'+keyFigureData[i]['#affected+num']+'</span></div></div>');
   }
 }
-
+var parseDate = function(d){
+  dd = new Date(d);
+  return dd.getDate()  +  + (dd.getMonth()+1) + "-" + dd.getFullYear();
+};
 
 function generateSectorData (data) {
 
