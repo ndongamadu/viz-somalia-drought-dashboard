@@ -199,8 +199,13 @@ select {
 .chart-header h4 {
   color: #fff;
   margin-top: 13px;
+
 }
 .chart-header h3 {
   color: #fff;
+  min-height: 50px;
 }
 
+.sectorChart > div {
+    margin-bottom: 15px;
+}
