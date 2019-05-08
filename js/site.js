@@ -27,8 +27,8 @@ function hxlProxyToJSON(input){
 }
 
 var date_sort = function (d1, d2) {
-  if (d1.key[1] > d2.key[1]) return 1;
-  if (d1.key[1] < d2.key[1]) return -1;
+  if (d1.key[2] > d2.key[2]) return 1;
+  if (d1.key[2] < d2.key[2]) return -1;
   return 0;
 };
 
@@ -40,13 +40,21 @@ function generateDescription(descriptionData){
 }
 
 function updateCharts(displacedData) {
-  var currentData = (idpLineChart.data.shown()[0]!==undefined) ? idpLineChart.data.shown()[0].id : '';
-  currentData = (currentData!=='Displaced') ? currentData : '';
+  var charts = idpLineChart.data.shown();
+  var loadedCharts = [];
+  for ( k in charts){
+    loadedCharts.push(charts[k].id)
+  }
   idpLineChart.load({
-    unload: [currentData], //refresh chart
+    unload: loadedCharts, //refresh chart
     columns: displacedData
+    // xs: {
+    //   'Drought related': 'Drought',
+    //   'Conflict/Insecurity': 'Conflict',
+    //   'Other': 'Autre'
+    //   }
   });
-  idpLineChart.hide('Displaced');
+  // idpLineChart.hide({id:loadedCharts});
 }
 
 var mapsvg,
@@ -126,47 +134,46 @@ function generateMap(adm2, countrieslabel, idpData){
   //IDP Chart
   cf = crossfilter(idpData);
   idpsDimension = cf.dimension(function(d){
-    return [d['#adm2+dest+name'],d['#date+reported']];
+    return [d['#adm2+dest+name'],d['#meta+category'],d['#date+reported']];
   });
 
   idpsGroup = idpsDimension.group().reduceSum(function(d){ return d['#affected']; }).top(Infinity).sort(date_sort);
 
+
   var kfDim = cf.dimension(function(d){ return [d['#adm2+dest+name'], d['#meta+category']]; });
   keyFiguresGroup = kfDim.group().reduceSum(function(d){ return d['#affected']; }).top(Infinity);
 
-  var dim = cf.dimension(function(d){ return d['#date+reported'];});
-  var grp = dim.group().reduceSum(function(d){ return d['#affected'];}).top(Infinity).sort(function(a,b){ return a.key<b.key ? -1 : a.key>b.key ? 1 : 0;});
+  var dim = cf.dimension(function(d){ return [d['#meta+category'],d['#date+reported']];});
+  var grp = dim.group().reduceSum(function(d){ return d['#affected'];}).top(Infinity).sort(function(a,b){ return a.key[1]<b.key[1] ? -1 : a.key[1]>b.key[1] ? 1 : 0;});
 
+  // for (var i = 0; i < idpsGroup.length; i++) {
+  //   console.log(idpsGroup[i]);
+  // }
 
   var maxDate = new Date(d3.max(idpData,function(d){return d['#meta+date']+'-01';}));//.getMonth();
   var minDate = new Date(d3.min(idpData,function(d){return d['#meta+date']+'-01';}));//.getMonth();
   $('#idpDates').text('('+monthNames[minDate.getMonth()].substring(0,3)+' – '+monthNames[maxDate.getMonth()].substring(0,3)+' '+maxDate.getFullYear()+')');
-  /**
-  //disable date filters for now
-  selectFrom = document.getElementById('dateFrom');
-  selectEnd = document.getElementById('dateEnd');
-  for (var i = minDate; i <= maxDate; i++) {
-    option = document.createElement( 'option' );
-    option.value = option.text = monthNames[i];
-    selectFrom.add( option );
-  }
-  for (var i = minDate; i <= maxDate; i++) {
-    option = document.createElement( 'option' );
-    option.value = option.text = monthNames[i];
-    i === maxDate ? option.selected = true : '';
-    selectEnd.add( option );
-  }
-  **/
 
-  xUnfiltered.push('Date');
-  yUnfiltered.push('Displaced');
+  xDroughtUnfiltered.push('Drought');
+  xConflictsUnfiltered.push('Conflict');
+  xOtherUnfiltered.push('Autre');
+  droughtUnfiltered.push('Drought related');
+  conflictsUnfiltered.push('Conflict/Insecurity');
+  otherUnfiltered.push('Other');
 
   for (var i = 0; i < grp.length; i++) {
-    var mm = Number(grp[i].key.split("-")[1]);
-    xUnfiltered.push('W'+mm);
-    yUnfiltered.push(grp[i].value);
+    var mm = 'W'+Number(grp[i].key[1].split("-")[1]);
+    if (grp[i].key[0]==='Drought related') {
+      droughtUnfiltered.push(grp[i].value);
+      xDroughtUnfiltered.push(mm);
+    } else if (grp[i].key[0]==='Conflict/Insecurity') {
+      conflictsUnfiltered.push(grp[i].value);
+      xConflictsUnfiltered.push(mm);
+    } else if (grp[i].key[0]==='Other'){
+      otherUnfiltered.push(grp[i].value);
+      xOtherUnfiltered.push(mm);
+    }
   }
-
   generateIdpStats();
 
   idpLineChart = c3.generate({
@@ -176,14 +183,22 @@ function generateMap(adm2, countrieslabel, idpData){
       height: 350
     },
     data: {
-      x: 'Date',
-      columns: [xUnfiltered, yUnfiltered],
-      colors: {'Displaced': primaryColor},
-      type: 'line'
+      xs: {
+        'Drought related': 'Drought',
+        'Conflict/Insecurity': 'Conflict',
+        'Other': 'Autre'
+      },
+      columns: [xDroughtUnfiltered,xConflictsUnfiltered,xOtherUnfiltered,droughtUnfiltered,conflictsUnfiltered,otherUnfiltered],
+      colors: {
+        'Drought related': primaryColor,
+        'Conflict/Insecurity': secondaryColor,
+        'Other': tertiaryColor
+      },
+      type: 'line',
     },
-    color: {
-      pattern: [primaryColor]
-    },
+    // color: {
+    //   pattern: [primaryColor]
+    // },
     axis: {
       y: {
         padding: {top: 0, bottom: 0},
@@ -209,29 +224,51 @@ function generateMap(adm2, countrieslabel, idpData){
 var monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
 
 function getDisplacedData(adm2) {
-  var dateArray = [],
-      affectedArray = [];
-  dateArray.push('Date');
-  affectedArray.push(adm2);
+  var droughtAffected = [],
+      xDrought = [],
+      conflictsAffected = [],
+      xConflict = [],
+      otherAffected = [],
+      xOther = [];
+  xDrought.push('Drought');
+  xConflict.push('Conflict');
+  xOther.push('Autre');
+  droughtAffected.push('Drought related');
+  conflictsAffected.push('Conflict/Insecurity');
+  otherAffected.push('Other')
 
   for (var i = 0; i < idpsGroup.length; i++) {
     if (idpsGroup[i].key[0]===adm2) {
-      dateArray.push('W'+Number(idpsGroup[i].key[1].split('-')[1]));
-      affectedArray.push(idpsGroup[i].value);
+      var dd = 'W'+Number(idpsGroup[i].key[2].split('-')[1]);
+      if (idpsGroup[i].key[1]==='Drought related') {
+        droughtAffected.push(idpsGroup[i].value);
+        xDrought.push(dd);
+      } else if (idpsGroup[i].key[1]==='Conflict/Insecurity') {
+        conflictsAffected.push(idpsGroup[i].value);
+        xConflict.push(dd);
+      } else if (idpsGroup[i].key[1]==='Other'){
+        otherAffected.push(idpsGroup[i].value);
+        xOther.push(dd);
+      }
     }
   }
-
+  var datas = [];
+  xDrought.length >1 ? datas.push(xDrought) : '';
+  xConflict.length >1 ? datas.push(xConflict) : '';
+  xOther.length >1 ? datas.push(xOther) : '';
+  droughtAffected.length >1 ? datas.push(droughtAffected) : '';
+  conflictsAffected.length >1 ? datas.push(conflictsAffected) : '';
+  otherAffected.length >1 ? datas.push(otherAffected) : '';
   //only update chart if there is data this region
-  if (affectedArray.length<=1) {
+  if (datas.length===0) {
     return null;
   }
   else {
     generateIdpStats(adm2);
-    return [dateArray, affectedArray];
+    return datas;
   }
 }//generateDisplacedData
 
-// Conflict/Insecurity, Drought related ,Other
 function generateIdpStats (adm2) {
   var tot = 0,
       drght = 0,
@@ -283,13 +320,7 @@ function reset() {
 
   //update IDP stats
   generateIdpStats();
-
-  //reset IDP chart
-  if (idpLineChart.data.shown()[0]!==undefined) {
-    var currentLine = idpLineChart.data.shown()[0].id;
-    currentLine = (currentLine!=='Displaced') ? currentLine : null;
-    if (currentLine!=null) idpLineChart.unload(currentLine);
-  }
+  updateCharts([xDroughtUnfiltered,xConflictsUnfiltered,xOtherUnfiltered,droughtUnfiltered,conflictsUnfiltered,otherUnfiltered]);
   idpLineChart.show();
   idpLineChart.flush();
 
@@ -483,7 +514,7 @@ var keyFiguresCall = $.ajax({
 
 var sectorDataCall = $.ajax({
   type: 'GET',
-  url: 'https://proxy.hxlstandard.org/data.json?strip-headers=on&url=https%3A%2F%2Fdocs.google.com%2Fspreadsheets%2Fd%2F1UVyiOhuUqiIKrZfwl9al9GBUyH43ioYr-F8TE03rySU%2Fedit%23gid%3D0&force=on',
+  url: 'https://proxy.hxlstandard.org/data.json?strip-headers=on&url=https%3A%2F%2Fdocs.google.com%2Fspreadsheets%2Fd%2F1UVyiOhuUqiIKrZfwl9al9GBUyH43ioYr-F8TE03rySU%2Fedit%23gid%3D0',
   dataType: 'json',
 });
 
@@ -492,12 +523,17 @@ var cf,
     idpsGroup,
     keyFiguresGroup,
     idpLineChart,
-    xUnfiltered = [],
-    yUnfiltered =[];
+    droughtUnfiltered = [],
+    xDroughtUnfiltered = [],
+    conflictsUnfiltered = [],
+    xConflictsUnfiltered = [],
+    otherUnfiltered = [],
+    xOtherUnfiltered = [];
 
 //colors
 var primaryColor = '#418FDE',
-    secondaryColor = '#E56A54';
+    secondaryColor = '#E56A54'
+    tertiaryColor = '#A4D65E';
 
 //description data
 $.when(descriptionCall).then(function(descriptionArgs){
