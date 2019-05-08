@@ -242,13 +242,25 @@ function getDisplacedData(adm2) {
       var dd = 'W'+Number(idpsGroup[i].key[2].split('-')[1]);
       if (idpsGroup[i].key[1]==='Drought related') {
         droughtAffected.push(idpsGroup[i].value);
-        xDrought.push(dd);
+        conflictsAffected.push(0);
+        otherAffected.push(0);
+        xDrought.includes(dd) ? '' : xDrought.push(dd);
+        xConflict.includes(dd) ? '' : xConflict.push(dd);
+        xOther.includes(dd) ? '' : xOther.push(dd);
       } else if (idpsGroup[i].key[1]==='Conflict/Insecurity') {
         conflictsAffected.push(idpsGroup[i].value);
-        xConflict.push(dd);
+        otherAffected.push(0);
+        droughtAffected.push(0);
+        xDrought.includes(dd) ? '' : xDrought.push(dd);
+        xConflict.includes(dd) ? '' : xConflict.push(dd);
+        xOther.includes(dd) ? '' : xOther.push(dd);
       } else if (idpsGroup[i].key[1]==='Other'){
         otherAffected.push(idpsGroup[i].value);
-        xOther.push(dd);
+        droughtAffected.push(0);
+        conflictsAffected.push(0);
+        xDrought.includes(dd) ? '' : xDrought.push(dd);
+        xConflict.includes(dd) ? '' : xConflict.push(dd);
+        xOther.includes(dd) ? '' : xOther.push(dd);
       }
     }
   }
