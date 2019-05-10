@@ -163,7 +163,7 @@ select {
 #idpStats {
 	margin: 20px 0;
 }
-#idpDates {
+.source {
 	font-family: 'SourceSansPro-Regular';
 	font-weight: normal;
 	text-transform: capitalize;
