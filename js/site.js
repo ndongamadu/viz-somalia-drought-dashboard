@@ -364,31 +364,41 @@ var parseDate = function(d){
   return dd.getDate()  +  + (dd.getMonth()+1) + "-" + dd.getFullYear();
 };
 
-function generateSectorData (data) {
-
+function generateSectorData (region) {
+  var selectedRegion = $('#regionDrowdown option:selected').text();
+  var data = sectorDataDimension.filter(function(d){ return d===selectedRegion ;}).top(Infinity);
+  data.sort(function(a,b){
+    a = new Date(a['#date']);
+    b = new Date(b['#date']);
+    return a<b ? -1 : a>b ? 1 : 0;
+  });
+  console.log(data)
   var sectors = [];
   var dates = [];
   dates.push('x');
   for(k in data){
     sectors.includes(data[k]['#sector'])? '': sectors.push(data[k]['#sector']);
-    var d = parseDate(data[k]['#date']);
     dates.includes(data[k]['#date']) ? '': dates.push(data[k]['#date']);
   }
+  $('.sectorChart').html(''); 
   for (var i = 0; i < sectors.length; i++) {
     var reachedArr = [];
     var indicatorName = [];
     var targetArr = [];
+    var targetMonth = [];
     reachedArr.push('Reached');
-    targetArr.push('Target');
+    targetArr.push('End/year Target');
+    targetMonth.push('Monthly Target');
     for (k in data){
       if (data[k]['#sector']===sectors[i]) {
         reachedArr.push(data[k]['#reached']);
-        targetArr.push(data[k]['#targeted']);
+        data[k]['#targeted+year'] !='NA' ? targetArr.push(data[k]['#targeted+year']) : '';
+        data[k]['#targeted+month'] !='NA' ? targetMonth.push(data[k]['#targeted+month']) : '';
         indicatorName.includes(data[k]['#indicator'])? '': indicatorName.push(data[k]['#indicator']);
       }
 
     }
-    var sectorName= (sectors[i] ==='FOOD SECURITY') ? indicatorName[0] = 'foodsecuritycluster' : sectors[i].toLowerCase();
+    var targeted = (targetMonth.length<=1 ? targetArr : targetMonth );
     $('.sectorChart').append('<div class="col-sm-6 col-md-4" id="indicator'+i+'"><div class="chart-header"><h3><span>'+sectors[i]+':</span> '+indicatorName[0]+'</h3></div><div class="chart-container"><div id="chart'+i+'""></div></div>');
     var chartType = 'line';
     var chart = c3.generate({
@@ -398,7 +408,7 @@ function generateSectorData (data) {
       data: {
         x: 'x',
         type: chartType,
-        columns: [dates, reachedArr, targetArr],
+        columns: [dates, reachedArr, targeted],
         colors: {
           Target: primaryColor,
           Reached: secondaryColor
@@ -432,6 +442,30 @@ function generateSectorData (data) {
     $('#chart'+i).data('chartObj', chart);
   }
 }//generateSectorData
+
+function generateDropdown (argument) {
+  sectorDataCf = crossfilter(argument);
+  sectorDataDimension = sectorDataCf.dimension(function(d){ return d['#adm1+name']; });
+
+  var admin1 = [];
+  for (var i = 0; i < argument.length; i++) {
+    admin1.includes(argument[i]['#adm1+name']) ? '' : admin1.push(argument[i]['#adm1+name']);
+  }
+  var options = '<label>Selected Region</label><select id="regionDrowdown">';
+  for (var i = 0; i < admin1.length; i++) {
+    i===0 ? options +='<option value="'+admin1[i]+'"selected>'+admin1[i]+'</option>' : options +='<option value="'+admin1[i]+'">'+admin1[i]+'</option>';
+  }
+  options +='</select>';
+  $('#dropdown').html(options);
+  selectedRegion = admin1[0];
+
+  $('#regionDrowdown').on('change', function(d){
+    generateSectorData();
+  });
+}//generateDropdown
+
+
+
 
 var somCall = $.ajax({ 
   type: 'GET', 
@@ -483,9 +517,10 @@ var keyFiguresCall = $.ajax({
 
 var sectorDataCall = $.ajax({
   type: 'GET',
-  url: 'https://proxy.hxlstandard.org/data.json?strip-headers=on&url=https%3A%2F%2Fdocs.google.com%2Fspreadsheets%2Fd%2F1UVyiOhuUqiIKrZfwl9al9GBUyH43ioYr-F8TE03rySU%2Fedit%23gid%3D0&force=on',
+  url: 'https://proxy.hxlstandard.org/data.json?strip-headers=on&url=https%3A%2F%2Fdocs.google.com%2Fspreadsheets%2Fd%2F1UVyiOhuUqiIKrZfwl9al9GBUyH43ioYr-F8TE03rySU%2Fedit%23gid%3D973763003',
   dataType: 'json',
 });
+
 
 var cf,
     idpsDimension,
@@ -498,6 +533,9 @@ var cf,
 //colors
 var primaryColor = '#418FDE',
     secondaryColor = '#E56A54';
+
+var sectorDataCf,
+    sectorDataDimension;
 
 //description data
 $.when(descriptionCall).then(function(descriptionArgs){
@@ -529,9 +567,8 @@ $.when(keyFiguresCall).then(function(keyFiguresArgs){
 
 //sector data 
 $.when(sectorDataCall).then(function(sectorDataArgs){
-  var sectorData = crossfilter(hxlProxyToJSON(sectorDataArgs));
-  var dim = sectorData.dimension(function(d){ return d['#sector']; });
-  var arr = dim.top(Infinity);
-  generateSectorData(arr);
+  var sectorData = hxlProxyToJSON(sectorDataArgs);
+  generateDropdown(sectorData);
+  generateSectorData();
 
 });
