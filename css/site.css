@@ -207,3 +207,10 @@ select {
 .sectorChart > div {
     margin-bottom: 15px;
 }
+label {
+	font-size: 14px;
+}
+
+#regionDrowdown{
+	margin-bottom: 10px;
+}
