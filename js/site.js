@@ -398,7 +398,8 @@ function generateRiverLevels(riverLevel1Data, riverLevel2Data) {
         x: {
           type: 'category',
           tick: {
-            centered: true
+            centered: true,
+            multiline: false
           }
         },
         y: {
@@ -556,7 +557,8 @@ function generateRegionWaterPrice (data) {
           tick: {
             centered: true,
             fit: true,
-            multiline: false
+            multiline: false,
+            // rotate: 10
           }
         },
         y: {
@@ -570,6 +572,95 @@ function generateRegionWaterPrice (data) {
       }
     });
 }//generateRegionWaterPrice
+
+function generateDiseases (data) {
+  var xArr = [],
+      awdArr = [],
+      choleraArr = [],
+      measlesArr = [];
+  xArr.push('Week');
+  awdArr.push('AWD');
+  choleraArr.push('Bloody Diarrhea');
+  measlesArr.push('Measles');
+  data.sort(function(a,b){
+    a['#date+week']<b['#date+week'] ? -1 : a['#date+week']>b['#date+week'] ? 1 : 0;
+  });
+  for (var i = 0; i < data.length; i++) {
+    xArr.push(data[i]['#date+week']);
+    awdArr.push(data[i]['#indicator+awd']);
+    choleraArr.push(data[i]['#indicator+bd']);
+    measlesArr.push(data[i]['#indicator+meas']);
+  }
+
+  var awdCholeraChart = c3.generate({
+    bindto: '#awdCholera',
+    title: {text: 'AWD/Cholera and Bloody Diarrhea'},
+    padding: { top: 20, left: 24 },
+    size: {
+        height: 200
+    },
+    data: {
+      x: 'Week',
+      columns: [xArr, awdArr, choleraArr],
+      groups: [awdArr, choleraArr],
+      type: 'line',
+      colors: {
+          'AWD': secondaryColor,
+          'Bloody Diarrhea': primaryColor
+        }
+      },
+      axis: {
+        x: {
+          type: 'category',
+          tick: {
+            centered: true,
+            fit: true,
+            multiline: false,
+          }
+        },
+        y: {
+          padding: {top: 0, bottom: 0},
+          min: 0,
+          tick: {
+            count: 6,
+            format: d3.format('.1f')
+          }
+        }
+      }
+    });
+
+  var measlesChart = c3.generate({
+    bindto: '#measles',
+    title: {text: 'Measles'},
+    padding: { top: 20, left: 24 },
+    size: {
+        height: 200
+    },
+    data: {
+      x: 'Week',
+      columns: [xArr, measlesArr],
+      type: 'line',
+      },
+      axis: {
+        x: {
+          type: 'category',
+          tick: {
+            centered: true,
+            fit: true,
+            multiline: false,
+          }
+        },
+        y: {
+          padding: {top: 0, bottom: 0},
+          min: 0,
+          tick: {
+            count: 6,
+            format: d3.format('.1f')
+          }
+        }
+      }
+    });
+}//generateDiseases
 
 
 var somCall = $.ajax({ 
@@ -632,6 +723,11 @@ var waterPriceRegionCall = $.ajax({
   dataType: 'json',
 });
 
+var diseaseDataCall = $.ajax({
+  type: 'GET',
+  url: 'https://proxy.hxlstandard.org/data.json?strip-headers=on&url=https%3A%2F%2Fdocs.google.com%2Fspreadsheets%2Fd%2F1acP0oXgGHi9kG735xiloZfj83_NkxR4HyzeYwUJlp4c%2Fedit%23gid%3D0',
+  dataType: 'json',
+});
 
 var cf,
     idpsDimension,
@@ -692,6 +788,10 @@ $.when(sectorDataCall).then(function(sectorDataArgs){
 
 $.when(waterPriceRegionCall).then(function(waterPriceRegionArgs){
   var waterRegion = hxlProxyToJSON(waterPriceRegionArgs);
-  // generateRegionWaterPrice(waterRegion);
+  generateRegionWaterPrice(waterRegion);
 });
 
+$.when(diseaseDataCall).then(function(diseaseDataArgs){
+  var diseaseData = hxlProxyToJSON(diseaseDataArgs);
+  generateDiseases(diseaseData);
+});
