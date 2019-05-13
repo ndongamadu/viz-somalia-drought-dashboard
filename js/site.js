@@ -33,6 +33,7 @@ var date_sort = function (d1, d2) {
 };
 
 var formatNum = d3.format('.2s');
+var formatCommaNum = d3.format(',');
 
 function generateDescription(descriptionData){
   $('.title span').text('as of ' + descriptionData[0]['#date+reported']);
@@ -317,7 +318,7 @@ function generateIdpStats (adm2) {
   }
 
   $('#idpStats').html('');
-  $('#idpStats').append('<label>Total:</label> <span class="num">'+Number(tot)+'</span> <label>Drought related:</label> <span class="num">'+Number(drght)+'</span> <label>Conflict/Insecurity:</label> <span class="num">'+Number(cfts)+'</span> <label>Other:</label> <span class="num">'+Number(others)+'</span>');
+  $('#idpStats').append('<label>Total:</label> <span class="num">'+formatCommaNum(tot)+'</span> <label>Drought related:</label> <span class="num">'+formatCommaNum(drght)+'</span> <label>Conflict/Insecurity:</label> <span class="num">'+formatCommaNum(cfts)+'</span> <label>Other:</label> <span class="num">'+formatCommaNum(others)+'</span>');
 } //generateIdpStats
 
 function selectRegion(region, name) {
@@ -473,10 +474,10 @@ function generateSectorData (region) {
         x: 'x',
         type: chartType,
         columns: [dates, reachedArr, targeted],
-        colors: {
-          Target: primaryColor,
-          Reached: secondaryColor
-        }
+        // colors: {
+        //   Target: primaryColor,
+        //   Reached: secondaryColor
+        // }
       },
       axis: {
         x: {
@@ -530,7 +531,6 @@ function generateDropdown (argument) {
 
 
 function generateRegionWaterPrice (data) {
-
   var pricesArr = [];
   var waterPriceRegionArr = [];
   waterPriceRegionArr.push('Region');
@@ -542,36 +542,38 @@ function generateRegionWaterPrice (data) {
   var chart = c3.generate({
     bindto: '#waterPricesRegion',
     title: {text: 'Water prices by region'},
-    padding: { top: 20, left: 24 },
+    padding: { top: 20, left: 24, right: 24 },
     size: {
-        height: 200
+        height: 229
     },
     data: {
       x: 'Region',
       columns: [waterPriceRegionArr, pricesArr],
       type: 'bar',
-      color:[primaryColor]
+      colors: {
+        'Water Price (Average/USD)': primaryColor,
       },
-      axis: {
-        x: {
-          type: 'category',
-          tick: {
-            centered: true,
-            fit: true,
-            multiline: false,
-            // rotate: 10
-          }
-        },
-        y: {
-          padding: {top: 0, bottom: 0},
-          min: 0,
-          tick: {
-            count: 6,
-            format: d3.format('.1f')
-          }
+    },
+    axis: {
+      x: {
+        type: 'category',
+        tick: {
+          centered: true,
+          fit: true,
+          multiline: false,
+          rotate: 25
+        }
+      },
+      y: {
+        padding: {top: 0, bottom: 0},
+        min: 0,
+        tick: {
+          count: 6,
+          format: d3.format('.1f')
         }
       }
-    });
+    }
+  });
 }//generateRegionWaterPrice
 
 function generateDiseases (data) {
