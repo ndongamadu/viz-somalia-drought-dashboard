@@ -371,7 +371,7 @@ function generateRiverLevels(riverLevel1Data, riverLevel2Data) {
     var severityMean = ['Long Term Average'];
     for (var j=0; j<riverData.length; j++){
       var now = new Date();
-      var d = new Date(now.getFullYear()+'-'+riverData[j]['#date+reported']+'-'+riverData[j]['#indicator+num']);
+      var d = new Date(riverData[j]['#date+reported']+' '+riverData[j]['#indicator+num']+', '+now.getFullYear());
       if (d.getDay()==1){ //only show monday data to represent the week
         weekNum++;
         date.push('W'+weekNum);
@@ -413,6 +413,7 @@ function generateRiverLevels(riverLevel1Data, riverLevel2Data) {
         }
       }
     });
+    chart.flush();
   }
 }
 
