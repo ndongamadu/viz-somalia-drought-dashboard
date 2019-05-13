@@ -345,15 +345,15 @@ function reset() {
 
   //update IDP stats
   generateIdpStats();
-
+  updateCharts([xDroughtUnfiltered,xConflictsUnfiltered,xOtherUnfiltered,droughtUnfiltered,conflictsUnfiltered,otherUnfiltered])
   //reset IDP chart
-  if (idpLineChart.data.shown()[0]!==undefined) {
-    var currentLine = idpLineChart.data.shown()[0].id;
-    currentLine = (currentLine!=='Displaced') ? currentLine : null;
-    if (currentLine!=null) idpLineChart.unload(currentLine);
-  }
-  idpLineChart.show();
-  idpLineChart.flush();
+  // if (idpLineChart.data.shown()[0]!==undefined) {
+  //   var currentLine = idpLineChart.data.shown()[0].id;
+  //   currentLine = (currentLine!=='Displaced') ? currentLine : null;
+  //   if (currentLine!=null) idpLineChart.unload(currentLine);
+  // }
+  // idpLineChart.show();
+  // idpLineChart.flush();
 
   return false;
 }
@@ -778,7 +778,7 @@ $.when(riverLevel1Call, riverLevel2Call).then(function(riverLevel1Args, riverLev
 //indicator data
 $.when(keyFiguresCall).then(function(keyFiguresArgs){
   var keyFigures = hxlProxyToJSON(keyFiguresArgs);
-  generateKeyFigures(keyFigures);
+  // generateKeyFigures(keyFigures);
 });
 
 //sector data 
