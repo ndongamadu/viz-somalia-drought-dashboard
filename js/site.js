@@ -372,7 +372,9 @@ function generateSectorData (region) {
     b = new Date(b['#date']);
     return a<b ? -1 : a>b ? 1 : 0;
   });
-  console.log(data)
+  data.sort(function(a,b){
+    return a['#sector']<b['#sector'] ? -1 : a['#sector']>b['#sector'] ? 1 : 0;
+  });
   var sectors = [];
   var dates = [];
   dates.push('x');
@@ -465,6 +467,48 @@ function generateDropdown (argument) {
 }//generateDropdown
 
 
+function generateRegionWaterPrice (data) {
+
+  var pricesArr = [];
+  var waterPriceRegionArr = [];
+  waterPriceRegionArr.push('Region');
+  pricesArr.push('Water Price (Average/USD)');
+  for (var i = 0; i < data.length; i++) {
+    waterPriceRegionArr.push(data[i]['#adm1+name']);
+    pricesArr.push(data[i]['#indicator+price']);
+  }
+  var chart = c3.generate({
+    bindto: '#waterPricesRegion',
+    title: {text: 'Water prices by region'},
+    padding: { top: 20, left: 24 },
+    size: {
+        height: 200
+    },
+    data: {
+      x: 'Region',
+      columns: [waterPriceRegionArr, pricesArr],
+      type: 'bar',
+      },
+      axis: {
+        x: {
+          type: 'category',
+          tick: {
+            centered: true,
+            fit: true,
+            multiline: false
+          }
+        },
+        y: {
+          padding: {top: 0, bottom: 0},
+          min: 0,
+          tick: {
+            count: 6,
+            format: d3.format('.1f')
+          }
+        }
+      }
+    });
+}//generateRegionWaterPrice
 
 
 var somCall = $.ajax({ 
@@ -521,6 +565,12 @@ var sectorDataCall = $.ajax({
   dataType: 'json',
 });
 
+var waterPriceRegionCall = $.ajax({
+  type: 'GET',
+  url: 'https://proxy.hxlstandard.org/data.json?strip-headers=on&url=https%3A%2F%2Fdocs.google.com%2Fspreadsheets%2Fd%2F16QXGa8aGIka_a0lhYx2O0rSVSy5KkUhmiNtOqGH0dVo%2Fedit%23gid%3D549566422',
+  dataType: 'json',
+});
+
 
 var cf,
     idpsDimension,
@@ -572,3 +622,9 @@ $.when(sectorDataCall).then(function(sectorDataArgs){
   generateSectorData();
 
 });
+
+$.when(waterPriceRegionCall).then(function(waterPriceRegionArgs){
+  var waterRegion = hxlProxyToJSON(waterPriceRegionArgs);
+  // generateRegionWaterPrice(waterRegion);
+});
+
