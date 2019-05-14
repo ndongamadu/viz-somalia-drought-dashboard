@@ -40,6 +40,9 @@ function generateDescription(descriptionData){
   $('.description-text p').text(descriptionData[0]['#description'])
 }
 
+/*
+Remove existing line chart et draw new ones
+*/
 function updateCharts(displacedData) {
   var charts = idpLineChart.data.shown();
   var loadedCharts = [];
@@ -147,10 +150,6 @@ function generateMap(adm2, countrieslabel, idpData){
   var dim = cf.dimension(function(d){ return [d['#meta+category'],d['#date+reported']];});
   var grp = dim.group().reduceSum(function(d){ return d['#affected'];}).top(Infinity).sort(function(a,b){ return a.key[1]<b.key[1] ? -1 : a.key[1]>b.key[1] ? 1 : 0;});
 
-  // for (var i = 0; i < idpsGroup.length; i++) {
-  //   console.log(idpsGroup[i]);
-  // }
-
   var maxDate = new Date(d3.max(idpData,function(d){return d['#meta+date']+'-01';}));//.getMonth();
   var minDate = new Date(d3.min(idpData,function(d){return d['#meta+date']+'-01';}));//.getMonth();
   $('#idpDates').text('('+monthNames[minDate.getMonth()].substring(0,3)+' – '+monthNames[maxDate.getMonth()].substring(0,3)+' '+maxDate.getFullYear()+')');
@@ -225,7 +224,9 @@ function generateMap(adm2, countrieslabel, idpData){
 
 var monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
 
-
+/*
+Return for given district couple weeks/#of people affected by drought - conflicts and others
+*/
 function getDisplacedData(adm2) {
   var droughtAffected = [],
       xDrought = [],
@@ -293,7 +294,9 @@ function getDisplacedData(adm2) {
   }
 }//generateDisplacedData
 
-// Conflict/Insecurity, Drought related ,Other
+/*
+Generate numbers at the top of the IDP chart
+*/
 function generateIdpStats (adm2) {
   var tot = 0,
       drght = 0,
@@ -428,9 +431,114 @@ var parseDate = function(d){
   return dd.getDate()  +  + (dd.getMonth()+1) + "-" + dd.getFullYear();
 };
 
+/** Overall monthly response charts**/
+function generateOverallSector () {
+  var sectors = [];
+  var monthsRange = [];
+  monthsRange.push('x');
+  var cf = crossfilter(sectorsData);
+  var dim = cf.dimension(function(d){ return [d['#sector'], d['#date']]; });
+  dim.filterAll();
+  var allDataArr = cf.dimension(function(d){ return [d['#meta+target+type'],d['#sector'], d['#date']]; }).top(Infinity).sort(function(a,b){
+    return a['#date']<b['#date'] ? -1 : a['#date']>b['#date'] ? 1 : 0;
+  });
+  for (var i = 0; i < allDataArr.length; i++) {
+    sectors.includes(allDataArr[i]['#sector']) ? '': sectors.push(allDataArr[i]['#sector']);
+    monthsRange.includes(allDataArr[i]['#date']) ? '': monthsRange.push(allDataArr[i]['#date']);
+  }
+
+  sectors.sort(function(a,b){
+    return a<b ? -1 : a>b ? 1 : 0;
+  });
+  $('.sectorChart').html('');
+  for (var i = 0; i < sectors.length; i++) {
+    var reached = [];
+    var targeted = [];
+
+    reached.push('Reached');
+    targeted.push('Monthly target');
+    var sData = allDataArr.filter(function(d){ return d['#sector']===sectors[i]; });
+    var targetType = [],
+        indcatorName = [];
+    for (var t = 0; t < sData.length; t++) {
+      targetType.includes(sData[t]['#meta+target+type']) ? '' : targetType.push(sData[t]['#meta+target+type']);
+      indcatorName.includes(sData[t]['#indicator']) ? '' : indcatorName.push(sData[t]['#indicator']);
+    }
+    var totYTarget = 0;
+    if (targetType[0]==='End/year target') {
+      for (var k = 0; k < sData.length; k++) {
+        sData[k]['#date']==='2019-01-01' ? totYTarget +=parseInt(sData[k]['#targeted+year']) : '';
+      }
+      targeted[0]='End/year target';
+      for (var r = 0; r < monthsRange.length; r++) {
+        totYTarget !=NaN ? targeted.push(totYTarget) : '';
+      }
+    }
+
+    for (var j = 1; j < monthsRange.length; j++) {
+      var totReached = 0,
+          totMTarget = 0;
+      if (targetType[0]==='Monthly') {
+        for (var h = 0; h < sData.length; h++) {
+          monthsRange[j] ===sData[h]['#date'] ? totMTarget +=parseInt(sData[h]['#targeted+month']) : '';
+        }
+        targeted.push(totMTarget);
+      }
+      for (var m = 0; m < sData.length; m++) {
+        monthsRange[j]===sData[m]['#date'] ? totReached += parseInt(sData[m]['#reached']) : '';
+      }
+      reached.push(totReached);
+    }//j
+
+    $('.sectorChart').append('<div class="col-sm-6 col-md-4" id="indicator'+i+'"><div class="chart-header"><h3><span>'+sectors[i]+':</span> '+indcatorName[0]+'</h3></div><div class="chart-container"><div id="chart'+i+'""></div></div>');
+    var chartType = 'line';
+    var chart = c3.generate({
+      bindto: '#chart'+i,
+      size:  { height: 180 },
+      padding: { top: 10, right: 35 },
+      data: {
+        x: 'x',
+        type: chartType,
+        columns: [monthsRange, reached, targeted],
+        // colors: {
+        //   Target: primaryColor,
+        //   Reached: secondaryColor
+        // }
+      },
+      axis: {
+        x: {
+          type: 'timeseries',
+          localtime: false,
+          tick: {
+            centered: false,
+            format: '%b %Y',
+            outer: false
+          }
+        },
+        y:{
+          tick: {
+            count: 5,
+            format: d3.format('.2s')
+          },
+          min: 0,
+          padding: { bottom: 0 }
+        }
+      },
+      tooltip: {
+        format: {
+          value: d3.format(',')
+        }
+      },
+    });
+    $('#chart'+i).data('chartObj', chart);
+
+  }//i sectors
+
+}//generateOverallSector
+
+/** Monthly response charts for a given region**/
 function generateSectorData (region) {
-  var selectedRegion = $('#regionDrowdown option:selected').text();
-  var data = sectorDataDimension.filter(function(d){ return d===selectedRegion ;}).top(Infinity);
+  var data = sectorDataDimension.filter(function(d){ return d===region ;}).top(Infinity);
   data.sort(function(a,b){
     a = new Date(a['#date']);
     b = new Date(b['#date']);
@@ -509,6 +617,7 @@ function generateSectorData (region) {
   }
 }//generateSectorData
 
+/** Generate the dropdown menu below Monthly chart **/
 function generateDropdown (argument) {
   sectorDataCf = crossfilter(argument);
   sectorDataDimension = sectorDataCf.dimension(function(d){ return d['#adm1+name']; });
@@ -517,19 +626,24 @@ function generateDropdown (argument) {
   for (var i = 0; i < argument.length; i++) {
     admin1.includes(argument[i]['#adm1+name']) ? '' : admin1.push(argument[i]['#adm1+name']);
   }
-  var options = '<label>Selected Region</label><select id="regionDrowdown">';
+  var options = '<label>Selected Region</label><select id="regionDrowdown"><option value="all" selected>All regions</option>';
   for (var i = 0; i < admin1.length; i++) {
-    i===0 ? options +='<option value="'+admin1[i]+'"selected>'+admin1[i]+'</option>' : options +='<option value="'+admin1[i]+'">'+admin1[i]+'</option>';
+    options +='<option value="'+admin1[i]+'">'+admin1[i]+'</option>';
   }
   options +='</select>';
   $('#dropdown').html(options);
   selectedRegion = admin1[0];
 
   $('#regionDrowdown').on('change', function(d){
-    generateSectorData();
+    updateSectorCharts();
   });
 }//generateDropdown
 
+function updateSectorCharts () {
+  var region = $('#regionDrowdown option:selected').text();
+  console.log(region)
+  region ==='All regions' ? generateOverallSector() : generateSectorData(region);
+}//updateSectorCharts
 
 function generateRegionWaterPrice (data) {
   var pricesArr = [];
@@ -673,12 +787,6 @@ var somCall = $.ajax({
   dataType: 'json',
 });
 
-// var adm1Call = $.ajax({ 
-//   type: 'GET', 
-//   url: 'data/som_adm1.json',
-//   dataType: 'json',
-// });
-
 var countrieslabelCall = $.ajax({ 
   type: 'GET', 
   url: 'data/countries.json',
@@ -693,7 +801,7 @@ var descriptionCall = $.ajax({
 
 var riverLevel1Call = $.ajax({ 
   type: 'GET', 
-  url: 'https://proxy.hxlstandard.org/data.json?strip-headers=on&url=https%3A%2F%2Fdocs.google.com%2Fspreadsheets%2Fd%2F16QXGa8aGIka_a0lhYx2O0rSVSy5KkUhmiNtOqGH0dVo%2Fedit%23gid%3D1461276083',
+  url: 'https://proxy.hxlstandard.org/data.json?strip-headers=on&url=https%3A%2F%2Fdocs.google.com%2Fspreadsheets%2Fd%2F16QXGa8aGIka_a0lhYx2O0rSVSy5KkUhmiNtOqGH0dVo%2Fedit%23gid%3D1461276083&force=on',
   dataType: 'json',
 });
 
@@ -717,7 +825,7 @@ var keyFiguresCall = $.ajax({
 
 var sectorDataCall = $.ajax({
   type: 'GET',
-  url: 'https://proxy.hxlstandard.org/data.json?strip-headers=on&url=https%3A%2F%2Fdocs.google.com%2Fspreadsheets%2Fd%2F1UVyiOhuUqiIKrZfwl9al9GBUyH43ioYr-F8TE03rySU%2Fedit%23gid%3D973763003',
+  url: 'https://proxy.hxlstandard.org/data.json?strip-headers=on&url=https%3A%2F%2Fdocs.google.com%2Fspreadsheets%2Fd%2F1UVyiOhuUqiIKrZfwl9al9GBUyH43ioYr-F8TE03rySU%2Fedit%23gid%3D973763003&force=on',
   dataType: 'json',
 });
 
@@ -752,7 +860,8 @@ var primaryColor = '#418FDE',
     tertiaryColor = '#A4D65E';
 
 var sectorDataCf,
-    sectorDataDimension;
+    sectorDataDimension,
+    sectorsData;
 
 //description data
 $.when(descriptionCall).then(function(descriptionArgs){
@@ -784,9 +893,9 @@ $.when(keyFiguresCall).then(function(keyFiguresArgs){
 
 //sector data 
 $.when(sectorDataCall).then(function(sectorDataArgs){
-  var sectorData = hxlProxyToJSON(sectorDataArgs);
-  generateDropdown(sectorData);
-  generateSectorData();
+  sectorsData = hxlProxyToJSON(sectorDataArgs);
+  generateDropdown(sectorsData);
+  generateOverallSector();
 
 });
 
