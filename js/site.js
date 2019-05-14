@@ -33,6 +33,7 @@ var date_sort = function (d1, d2) {
 };
 
 var formatNum = d3.format('.2s');
+
 var formatCommaNum = d3.format(',');
 
 function generateDescription(descriptionData){
