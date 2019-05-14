@@ -386,9 +386,9 @@ function generateRiverLevels(riverLevel1Data, riverLevel2Data) {
     var chart = c3.generate({
       bindto: riverChart,
       title: { text: riverName },
-      padding: { top: 20, left: 24 },
+      padding: {left: 15, right: 15},
       size: {
-        height: 200
+        height: 210
       },
       data: {
         x: 'x',
@@ -402,8 +402,10 @@ function generateRiverLevels(riverLevel1Data, riverLevel2Data) {
         x: {
           type: 'category',
           tick: {
+            fit: true,
             centered: true,
-            multiline: false
+            multiline: false,
+            rotate: 25
           }
         },
         y: {
@@ -649,7 +651,7 @@ function generateRegionWaterPrice (data) {
   var pricesArr = [];
   var waterPriceRegionArr = [];
   waterPriceRegionArr.push('Region');
-  pricesArr.push('Water Price (Average/USD)');
+  pricesArr.push('Water Price/200  liters (USD)');
   for (var i = 0; i < data.length; i++) {
     waterPriceRegionArr.push(data[i]['#adm1+name']);
     pricesArr.push(data[i]['#indicator+price']);
@@ -666,7 +668,7 @@ function generateRegionWaterPrice (data) {
       columns: [waterPriceRegionArr, pricesArr],
       type: 'bar',
       colors: {
-        'Water Price (Average/USD)': primaryColor,
+        'Water Price/200  liters (USD)': primaryColor,
       },
     },
     axis: {
