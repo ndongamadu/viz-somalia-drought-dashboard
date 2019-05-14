@@ -807,13 +807,13 @@ var riverLevel1Call = $.ajax({
 
 var riverLevel2Call = $.ajax({ 
   type: 'GET', 
-  url: 'https://proxy.hxlstandard.org/data.json?strip-headers=on&url=https%3A%2F%2Fdocs.google.com%2Fspreadsheets%2Fd%2F16QXGa8aGIka_a0lhYx2O0rSVSy5KkUhmiNtOqGH0dVo%2Fedit%23gid%3D299718476',
+  url: 'https://proxy.hxlstandard.org/data.json?strip-headers=on&url=https%3A%2F%2Fdocs.google.com%2Fspreadsheets%2Fd%2F16QXGa8aGIka_a0lhYx2O0rSVSy5KkUhmiNtOqGH0dVo%2Fedit%23gid%3D299718476&force=on',
   dataType: 'json',
 });
 
 var idpCall = $.ajax({ 
   type: 'GET', 
-  url: 'https://proxy.hxlstandard.org/data.json?strip-headers=on&url=https%3A%2F%2Fdocs.google.com%2Fspreadsheets%2Fd%2F12o4Si6pqbLsjkxuWpZjtC8sIvSFpD7_DtkrMUAbt32I%2Fedit%23gid%3D974093512',
+  url: 'https://proxy.hxlstandard.org/data.json?strip-headers=on&url=https%3A%2F%2Fdocs.google.com%2Fspreadsheets%2Fd%2F12o4Si6pqbLsjkxuWpZjtC8sIvSFpD7_DtkrMUAbt32I%2Fedit%23gid%3D974093512&force=on',
   dataType: 'json',
 });
 
@@ -831,13 +831,13 @@ var sectorDataCall = $.ajax({
 
 var waterPriceRegionCall = $.ajax({
   type: 'GET',
-  url: 'https://proxy.hxlstandard.org/data.json?strip-headers=on&url=https%3A%2F%2Fdocs.google.com%2Fspreadsheets%2Fd%2F16QXGa8aGIka_a0lhYx2O0rSVSy5KkUhmiNtOqGH0dVo%2Fedit%23gid%3D549566422',
+  url: 'https://proxy.hxlstandard.org/data.json?strip-headers=on&url=https%3A%2F%2Fdocs.google.com%2Fspreadsheets%2Fd%2F16QXGa8aGIka_a0lhYx2O0rSVSy5KkUhmiNtOqGH0dVo%2Fedit%23gid%3D549566422&force=on',
   dataType: 'json',
 });
 
 var diseaseDataCall = $.ajax({
   type: 'GET',
-  url: 'https://proxy.hxlstandard.org/data.json?strip-headers=on&url=https%3A%2F%2Fdocs.google.com%2Fspreadsheets%2Fd%2F1acP0oXgGHi9kG735xiloZfj83_NkxR4HyzeYwUJlp4c%2Fedit%23gid%3D0',
+  url: 'https://proxy.hxlstandard.org/data.json?strip-headers=on&url=https%3A%2F%2Fdocs.google.com%2Fspreadsheets%2Fd%2F1acP0oXgGHi9kG735xiloZfj83_NkxR4HyzeYwUJlp4c%2Fedit%23gid%3D0&force=on',
   dataType: 'json',
 });
 
