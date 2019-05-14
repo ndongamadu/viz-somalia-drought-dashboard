@@ -511,7 +511,7 @@ function generateOverallSector () {
       axis: {
         x: {
           type: 'timeseries',
-          localtime: false,
+          localtime: true,
           tick: {
             centered: false,
             format: '%b %Y',
@@ -594,7 +594,7 @@ function generateSectorData (region) {
       axis: {
         x: {
           type: 'timeseries',
-          localtime: false,
+          localtime: true,
           tick: {
             centered: false,
             format: '%b %Y',
