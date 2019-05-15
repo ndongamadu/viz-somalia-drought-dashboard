@@ -920,7 +920,7 @@ var diseaseDataCall = $.ajax({
 
 var rainfallDataCall = $.ajax({
   type: 'GET',
-  url: 'https://proxy.hxlstandard.org/data.json?url=https%3A%2F%2Fdocs.google.com%2Fspreadsheets%2Fd%2F18pVV7MR23gv3d-vBVtr3ykCqpJl_5oVFVz2O7NUUP8U%2Fedit%23gid%3D0&strip-headers=on',
+  url: 'https://proxy.hxlstandard.org/data.json?strip-headers=on&url=https%3A%2F%2Fdocs.google.com%2Fspreadsheets%2Fd%2F16QknWb1RmH5eynxLmEZvmuNl_3YhM1qXFQT1MA37Qk4%2Fedit%23gid%3D0&force=on',
   dataType: 'json',
 });
 
