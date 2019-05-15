@@ -38,8 +38,9 @@ h1 {
 }
 h2 {
 	font-family: 'Gotham-Bold';
-	font-size: 13px;
+	font-size: 14px;
 	margin-top: 0;
+	margin-bottom: 10px;
 	text-transform: uppercase;
 }
 h3{
@@ -211,6 +212,10 @@ label {
 	font-size: 11px;
 }
 
-#regionDrowdown{
-	margin-bottom: 10px;
+#dropdown{
+	margin-bottom: 20px;
+}
+
+.rainfallChartContainer{
+	padding-bottom: 20px;
 }

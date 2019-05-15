@@ -198,17 +198,20 @@ function generateMap(adm2, countrieslabel, idpData){
       },
       type: 'line',
     },
-    // color: {
-    //   pattern: [primaryColor]
-    // },
     axis: {
       y: {
         padding: {top: 0, bottom: 0},
-        min: 0
+        min: 0,
+        tick: {
+          fit: true,
+          format: d3.format('.2s')
+        },
       },
       x: {
         type: 'category',
         tick: {
+          multiline: false,
+          culling: true,
           centered: true,
           outer: false
         }
@@ -403,7 +406,7 @@ function generateRiverLevels(riverLevel1Data, riverLevel2Data) {
         x: {
           type: 'category',
           tick: {
-            fit: true,
+            culling: true,
             centered: true,
             multiline: false,
             rotate: 25
@@ -621,7 +624,7 @@ function generateSectorData (region) {
 }//generateSectorData
 
 /** Generate the dropdown menu below Monthly chart **/
-function generateDropdown (argument) {
+function generateDropdown(argument) {
   sectorDataCf = crossfilter(argument);
   sectorDataDimension = sectorDataCf.dimension(function(d){ return d['#adm1+name']; });
 
@@ -644,7 +647,6 @@ function generateDropdown (argument) {
 
 function updateSectorCharts () {
   var region = $('#regionDrowdown option:selected').text();
-  console.log(region)
   region ==='All regions' ? generateOverallSector() : generateSectorData(region);
 }//updateSectorCharts
 
@@ -660,7 +662,7 @@ function generateRegionWaterPrice (data) {
   var chart = c3.generate({
     bindto: '#waterPricesRegion',
     title: {text: 'Water prices by region'},
-    padding: { top: 20, left: 24, right: 24 },
+    padding: { top: 20, left: 30, right: 24 },
     size: {
         height: 229
     },
@@ -716,7 +718,7 @@ function generateDiseases (data) {
   var awdCholeraChart = c3.generate({
     bindto: '#awdCholera',
     title: {text: 'AWD/Cholera and Bloody Diarrhea'},
-    padding: { top: 20, left: 24 },
+    padding: { top: 20, left: 34 },
     size: {
         height: 200
     },
@@ -735,6 +737,7 @@ function generateDiseases (data) {
           type: 'category',
           tick: {
             centered: true,
+            culling: true,
             fit: true,
             multiline: false,
           }
@@ -744,7 +747,7 @@ function generateDiseases (data) {
           min: 0,
           tick: {
             count: 6,
-            format: d3.format('.1f')
+            format: d3.format('.0f')
           }
         }
       }
@@ -753,9 +756,9 @@ function generateDiseases (data) {
   var measlesChart = c3.generate({
     bindto: '#measles',
     title: {text: 'Measles'},
-    padding: { top: 20, left: 24 },
+    padding: { top: 20, left: 34 },
     size: {
-        height: 200
+      height: 200
     },
     data: {
       x: 'Week',
@@ -767,6 +770,7 @@ function generateDiseases (data) {
           type: 'category',
           tick: {
             centered: true,
+            culling: true,
             fit: true,
             multiline: false,
           }
@@ -776,7 +780,7 @@ function generateDiseases (data) {
           min: 0,
           tick: {
             count: 6,
-            format: d3.format('.1f')
+            format: d3.format('.0f')
           }
         }
       }
@@ -784,9 +788,79 @@ function generateDiseases (data) {
 }//generateDiseases
 
 
+function generateRainfall(data) {
+  var cf = crossfilter(data);
+  var rainfallDimension = cf.dimension(function(d){ return d['#station+name']; });
+  var stationsArray = rainfallDimension.group().top(Infinity);
+
+  for (var i=0; i<stationsArray.length; i++){
+    var rainfallData = rainfallDimension.filter(function(d){ return d===stationsArray[i].key; }).top(Infinity);
+    rainfallData.sort(function(a,b){
+      a = new Date(a['#date+month'] + ' ' + '1');
+      b = new Date(b['#date+month'] + ' ' + '1');
+      return a<b ? -1 : a>b ? 1 : 0;
+    });
+
+    var rainfallChart = 'rainfall'+(i+1)+'Chart';
+    var stationName = stationsArray[i].key;
+    var month = ['x'];
+    var severityMean = ['Long Term Mean'];
+    var severityYear2018 = ['2018'];
+    var severityYear2019 = ['2019'];
+    for (var j=0; j<rainfallData.length; j++){
+      month.push(rainfallData[j]['#date+month']);
+      severityMean.push(rainfallData[j]['#severity+mean']);
+      severityYear2018.push(rainfallData[j]['#severity+year2018']);
+      severityYear2019.push(rainfallData[j]['#severity+year2019']);
+    }
+
+    //create chart div
+    $('.rainfallChart').append('<div class="col-md-4 rainfallChartContainer"><div id='+rainfallChart+'></div></div>');
+
+    //create chart
+    var chart = c3.generate({
+      bindto: '#'+rainfallChart,
+      title: { text: stationName },
+      padding: { top: 20, left: 34 },
+      size: { height: 180 },
+      data: {
+        x: 'x',
+        columns: [month, severityMean, severityYear2018, severityYear2019],
+        type: 'line',
+        colors: {
+          'Long Term Mean': primaryColor,
+          '2018': secondaryColor,
+          '2019': tertiaryColor
+        },
+      },
+      axis: {
+        x: {
+          type: 'category',
+          tick: {
+            centered: true,
+            culling: true,
+            fit: true,
+            multiline: false,
+            rotate: 25
+          }
+        },
+        y: {
+          padding: {top: 0, bottom: 0},
+          min: 0,
+          tick: {
+            count: 5,
+            format: d3.format('.0f')
+          }
+        }
+      }
+    });
+  }
+}//generateRainfall
+
+
 var somCall = $.ajax({ 
   type: 'GET', 
-    url: 'data/som-adm2-neighbour-topo.json',
+  url: 'data/som-adm2-neighbour-topo.json',
   dataType: 'json',
 });
 
@@ -841,6 +915,12 @@ var waterPriceRegionCall = $.ajax({
 var diseaseDataCall = $.ajax({
   type: 'GET',
   url: 'https://proxy.hxlstandard.org/data.json?strip-headers=on&url=https%3A%2F%2Fdocs.google.com%2Fspreadsheets%2Fd%2F1acP0oXgGHi9kG735xiloZfj83_NkxR4HyzeYwUJlp4c%2Fedit%23gid%3D0&force=on',
+  dataType: 'json',
+});
+
+var rainfallDataCall = $.ajax({
+  type: 'GET',
+  url: 'https://proxy.hxlstandard.org/data.json?url=https%3A%2F%2Fdocs.google.com%2Fspreadsheets%2Fd%2F18pVV7MR23gv3d-vBVtr3ykCqpJl_5oVFVz2O7NUUP8U%2Fedit%23gid%3D0&strip-headers=on',
   dataType: 'json',
 });
 
@@ -910,4 +990,10 @@ $.when(waterPriceRegionCall).then(function(waterPriceRegionArgs){
 $.when(diseaseDataCall).then(function(diseaseDataArgs){
   var diseaseData = hxlProxyToJSON(diseaseDataArgs);
   generateDiseases(diseaseData);
+});
+
+//rainfall data
+$.when(rainfallDataCall).then(function(rainfallDataArgs){
+  var rainfallData = hxlProxyToJSON(rainfallDataArgs);
+  generateRainfall(rainfallData);
 });
