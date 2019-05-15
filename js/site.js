@@ -506,10 +506,11 @@ function generateOverallSector () {
         x: 'x',
         type: chartType,
         columns: [monthsRange, reached, targeted],
-        // colors: {
-        //   Target: primaryColor,
-        //   Reached: secondaryColor
-        // }
+        colors: {
+          'Reached': secondaryColor,
+          'End/year target': primaryColor,
+          'Monthly target': primaryColor
+        }
       },
       axis: {
         x: {
@@ -589,10 +590,11 @@ function generateSectorData (region) {
         x: 'x',
         type: chartType,
         columns: [dates, reachedArr, targeted],
-        // colors: {
-        //   Target: primaryColor,
-        //   Reached: secondaryColor
-        // }
+        colors: {
+          'Reached': secondaryColor,
+          'Monthly Target': primaryColor,
+          'End/year Target': primaryColor
+        }
       },
       axis: {
         x: {
@@ -829,8 +831,8 @@ function generateRainfall(data) {
         type: 'line',
         colors: {
           'Long Term Mean': primaryColor,
-          '2018': secondaryColor,
-          '2019': tertiaryColor
+          '2018': tertiaryColor,
+          '2019': secondaryColor
         },
       },
       axis: {
