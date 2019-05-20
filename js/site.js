@@ -802,7 +802,6 @@ function generateRainfall(data) {
       b = new Date(b['#date+month'] + ' ' + '1');
       return a<b ? -1 : a>b ? 1 : 0;
     });
-
     var rainfallChart = 'rainfall'+(i+1)+'Chart';
     var stationName = stationsArray[i].key;
     var month = ['x'];
@@ -810,12 +809,12 @@ function generateRainfall(data) {
     var severityYear2018 = ['2018'];
     var severityYear2019 = ['2019'];
     for (var j=0; j<rainfallData.length; j++){
-      month.push(rainfallData[j]['#date+month']);
+      month.push(rainfallData[j]['#date']);
       severityMean.push(rainfallData[j]['#severity+mean']);
       severityYear2018.push(rainfallData[j]['#severity+year2018']);
       severityYear2019.push(rainfallData[j]['#severity+year2019']);
     }
-
+    console.log(month)
     //create chart div
     $('.rainfallChart').append('<div class="col-md-4 rainfallChartContainer"><div id='+rainfallChart+'></div></div>');
 
@@ -838,11 +837,12 @@ function generateRainfall(data) {
       axis: {
         x: {
           localtime: true,
-          type: 'category',
+          type: 'timeseries',
           tick: {
             centered: true,
             culling: true,
             fit: true,
+            format: '%b',
             multiline: false,
             rotate: 25
           }
