@@ -837,6 +837,7 @@ function generateRainfall(data) {
       },
       axis: {
         x: {
+          localtime: true,
           type: 'category',
           tick: {
             centered: true,
