@@ -27,8 +27,8 @@ function hxlProxyToJSON(input){
 }
 
 var date_sort = function (d1, d2) {
-  if (d1.key[1] > d2.key[1]) return 1;
-  if (d1.key[1] < d2.key[1]) return -1;
+  if (d1.key[0] > d2.key[0]) return 1;
+  if (d1.key[0] < d2.key[0]) return -1;
   return 0;
 };
 
@@ -139,21 +139,26 @@ function generateMap(adm2, countrieslabel, idpData){
   //IDP Chart
   cf = crossfilter(idpData);
   idpsDimension = cf.dimension(function(d){
-    return [d['#adm2+dest+name'],d['#meta+category'],d['#date+reported']];
+    return [d['#date+week'],d['#adm2+dest+name'],d['#meta+category']];
   });
 
-  idpsGroup = idpsDimension.group().reduceSum(function(d){ return d['#affected']; }).top(Infinity).sort(date_sort);
+  idpsGroup = idpsDimension.group().reduceSum(function(d){ return d['#affected']; }).top(Infinity);
 
-
-  var kfDim = cf.dimension(function(d){ return [d['#adm2+dest+name'], d['#meta+category']]; });
+  var kfDim = cf.dimension(function(d){ return [d['#adm2+dest+name'],d['#meta+category']]; });
   keyFiguresGroup = kfDim.group().reduceSum(function(d){ return d['#affected']; }).top(Infinity);
 
-  var dim = cf.dimension(function(d){ return [d['#meta+category'],d['#date+reported']];});
-  var grp = dim.group().reduceSum(function(d){ return d['#affected'];}).top(Infinity).sort(function(a,b){ return a.key[1]<b.key[1] ? -1 : a.key[1]>b.key[1] ? 1 : 0;});
 
-  var maxDate = new Date(d3.max(idpData,function(d){return d['#meta+date']+'-01';}));//.getMonth();
-  var minDate = new Date(d3.min(idpData,function(d){return d['#meta+date']+'-01';}));//.getMonth();
-  $('#idpDates').text('('+monthNames[minDate.getMonth()].substring(0,3)+' – '+monthNames[maxDate.getMonth()].substring(0,3)+' '+maxDate.getFullYear()+')');
+  var dim = cf.dimension(function(d){ return [d['#date+week'],d['#meta+category']]; });
+  var grp = dim.group().reduceSum(function(d){ return d['#affected'];}).top(Infinity).sort(function(a,b){
+    var valA = parseInt(a.key[0]);
+    var valB = parseInt(b.key[0]);
+    return valA < valB ? -1 : valA > valB ? 1 : 0 ;
+  });
+
+
+  // var maxDate = new Date(d3.max(idpData,function(d){return d['#meta+date']+'-01';}));//.getMonth();
+  // var minDate = new Date(d3.min(idpData,function(d){return d['#meta+date']+'-01';}));//.getMonth();
+  // $('#idpDates').text('('+monthNames[minDate.getMonth()].substring(0,3)+' – '+monthNames[maxDate.getMonth()].substring(0,3)+' '+maxDate.getFullYear()+')');
 
   xDroughtUnfiltered.push('Drought');
   xConflictsUnfiltered.push('Conflict');
@@ -161,20 +166,20 @@ function generateMap(adm2, countrieslabel, idpData){
   droughtUnfiltered.push('Drought related');
   conflictsUnfiltered.push('Conflict/Insecurity');
   otherUnfiltered.push('Other');
-
   for (var i = 0; i < grp.length; i++) {
-    var mm = 'W'+Number(grp[i].key[1].split("-")[1]);
-    xAxis.includes(mm) ? '' : xAxis.push(mm);
-    if (grp[i].key[0]==='Drought related') {
+    var xx = 'W'+grp[i].key[0];
+    xAxis.includes(xx) ? '' : xAxis.push(xx);
+    if(grp[i].key[1]=='Drought related') {
       droughtUnfiltered.push(grp[i].value);
-      xDroughtUnfiltered.push(mm);
-    } else if (grp[i].key[0]==='Conflict/Insecurity') {
+      xDroughtUnfiltered.push(xx);
+    } else if(grp[i].key[1]=='Conflict/Insecurity'){
       conflictsUnfiltered.push(grp[i].value);
-      xConflictsUnfiltered.push(mm);
-    } else if (grp[i].key[0]==='Other'){
+      xConflictsUnfiltered.push(xx);
+    } else if(grp[i].key[1]=='Other'){
       otherUnfiltered.push(grp[i].value);
-      xOtherUnfiltered.push(mm);
+       xOtherUnfiltered.push(xx);
     }
+
   }
   generateIdpStats();
 
@@ -245,57 +250,56 @@ function getDisplacedData(adm2) {
   conflictsAffected.push('Conflict/Insecurity');
   otherAffected.push('Other');
 
-  var dataArray = idpsDimension.group().reduceSum(function(d){ return d['#affected']; }).top(Infinity).filter(function(d){ return d.key[0]===adm2});
-  var droughtArr = dataArray.filter(function(d){ return d.key[1]==='Drought related';}).sort(function(a,b){
-    return a.key[2]<b.key[2] ? -1 : a.key[2]>b.key[2] ? 1 : 0;
-  });
-  var conflictArr = dataArray.filter(function(d){ return d.key[1]==='Conflict/Insecurity';}).sort(function(a,b){
-    return a.key[2]<b.key[2] ? -1 : a.key[2]>b.key[2] ? 1 : 0;
-  });
-  var otherArr = dataArray.filter(function(d){ return d.key[1]==='Other';}).sort(function(a,b){
-    return a.key[2]<b.key[2] ? -1 : a.key[2]>b.key[2] ? 1 : 0;
-  });
+  var dataArray = idpsDimension.group().reduceSum(function(d){ return d['#affected']; }).top(Infinity).filter(function(d){ return d.key[1]===adm2});
+  if (dataArray.length !=0) {
+    var droughtArr = dataArray.filter(function(d){ return d.key[2]==='Drought related';}).sort(function(a,b){
+      return a.key[2]<b.key[2] ? -1 : a.key[2]>b.key[2] ? 1 : 0;
+    });
+    var conflictArr = dataArray.filter(function(d){ return d.key[2]==='Conflict/Insecurity';}).sort(function(a,b){
+      return a.key[2]<b.key[2] ? -1 : a.key[2]>b.key[2] ? 1 : 0;
+    });
+    var otherArr = dataArray.filter(function(d){ return d.key[2]==='Other';}).sort(function(a,b){
+      return a.key[2]<b.key[2] ? -1 : a.key[2]>b.key[2] ? 1 : 0;
+    });
 
-  for (var i = 0; i < xAxis.length; i++) {
-    var droughtVal = 0,
-        conflictVal = 0,
-        otherVal = 0;
-    for (var k = 0; k < droughtArr.length; k++) {
-      var dd = 'W'+Number(droughtArr[k].key[2].split('-')[1]);
-      xAxis[i]===dd ? droughtVal = droughtArr[k].value : '';
+    for (var i = 0; i < xAxis.length; i++) {
+      var droughtVal = 0,
+          conflictVal = 0,
+          otherVal = 0;
+      for (var k = 0; k < droughtArr.length; k++) {
+        var dd = 'W'+droughtArr[k].key[0];
+        xAxis[i]===dd ? droughtVal = droughtArr[k].value : '';
+      }
+      for (var k = 0; k < conflictArr.length; k++) {
+        var dd = 'W'+conflictArr[k].key[0];
+        xAxis[i]===dd ? conflictVal = conflictArr[k].value : '';
+      }
+      for (var k = 0; k < otherArr.length; k++) {
+        var dd = 'W'+otherArr[k].key[0];
+        xAxis[i]===dd ? otherVal = otherArr[k].value : '';
+      }
+      droughtAffected.push(droughtVal);
+      xDrought.push(xAxis[i]);
+      conflictsAffected.push(conflictVal);
+      xConflict.push(xAxis[i]);
+      otherAffected.push(otherVal);
+      xOther.push(xAxis[i]);
     }
-    for (var k = 0; k < conflictArr.length; k++) {
-      var dd = 'W'+Number(conflictArr[k].key[2].split('-')[1]);
-      xAxis[i]===dd ? conflictVal = conflictArr[k].value : '';
-    }
-    for (var k = 0; k < otherArr.length; k++) {
-      var dd = 'W'+Number(otherArr[k].key[2].split('-')[1]);
-      xAxis[i]===dd ? otherVal = otherArr[k].value : '';
-    }
-    droughtAffected.push(droughtVal);
-    xDrought.push(xAxis[i]);
-    conflictsAffected.push(conflictVal);
-    xConflict.push(xAxis[i]);
-    otherAffected.push(otherVal);
-    xOther.push(xAxis[i]);
-  }
+      var datas = [];
+      datas.push(xDrought);
+      datas.push(xConflict);
+      datas.push(xOther);
+      datas.push(droughtAffected);
+      datas.push(conflictsAffected);
+      datas.push(otherAffected);
 
-  var datas = [];
-  datas.push(xDrought);
-  datas.push(xConflict);
-  datas.push(xOther);
-  datas.push(droughtAffected);
-  datas.push(conflictsAffected);
-  datas.push(otherAffected);
-
-  //only update chart if there is data this region
-  if (datas.length===0) {
-    return null;
-  }
-  else {
     generateIdpStats(adm2);
     return datas;
   }
+  else {
+    return null;
+  }
+
 }//generateDisplacedData
 
 /*
@@ -325,7 +329,7 @@ function generateIdpStats (adm2) {
   }
 
   $('#idpStats').html('');
-  $('#idpStats').append('<label>Total:</label> <span class="num">'+formatCommaNum(tot)+'</span> <label>Drought related:</label> <span class="num">'+formatCommaNum(drght)+'</span> <label>Conflict/Insecurity:</label> <span class="num">'+formatCommaNum(cfts)+'</span> <label>Other:</label> <span class="num">'+formatCommaNum(others)+'</span>');
+  $('#idpStats').append('<p><label>Total:</label> <span class="num">'+formatCommaNum(tot)+'</span></label></p> <label>Drought related:</label> <span class="num">'+formatCommaNum(drght)+'</span> <label>Conflict/Insecurity:</label> <span class="num">'+formatCommaNum(cfts)+'</span> <label>Other:</label> <span class="num">'+formatCommaNum(others)+'</span>');
 } //generateIdpStats
 
 function selectRegion(region, name) {
@@ -352,7 +356,7 @@ function reset() {
 
   //update IDP stats
   generateIdpStats();
-  updateCharts([xDroughtUnfiltered,xConflictsUnfiltered,xOtherUnfiltered,droughtUnfiltered,conflictsUnfiltered,otherUnfiltered])
+  updateCharts([xDroughtUnfiltered,xConflictsUnfiltered,xOtherUnfiltered,droughtUnfiltered,conflictsUnfiltered,otherUnfiltered]);
   //reset IDP chart
   // if (idpLineChart.data.shown()[0]!==undefined) {
   //   var currentLine = idpLineChart.data.shown()[0].id;
@@ -814,7 +818,6 @@ function generateRainfall(data) {
       severityYear2018.push(rainfallData[j]['#severity+year2018']);
       severityYear2019.push(rainfallData[j]['#severity+year2019']);
     }
-    console.log(month)
     //create chart div
     $('.rainfallChart').append('<div class="col-md-4 rainfallChartContainer"><div id='+rainfallChart+'></div></div>');
 
@@ -893,7 +896,8 @@ var riverLevel2Call = $.ajax({
 
 var idpCall = $.ajax({ 
   type: 'GET', 
-  url: 'https://proxy.hxlstandard.org/data.json?strip-headers=on&url=https%3A%2F%2Fdocs.google.com%2Fspreadsheets%2Fd%2F12o4Si6pqbLsjkxuWpZjtC8sIvSFpD7_DtkrMUAbt32I%2Fedit%23gid%3D974093512&force=on',
+  url : 'https://proxy.hxlstandard.org/data.json?strip-headers=on&url=https%3A%2F%2Fdocs.google.com%2Fspreadsheets%2Fd%2F1ZIhZW3AFjBR_Jr0INxGaz9MBEWOlvIFlHdGqkmeuKXg%2Fedit%23gid%3D0&force=on',
+  // url: 'https://proxy.hxlstandard.org/data.json?strip-headers=on&url=https%3A%2F%2Fdocs.google.com%2Fspreadsheets%2Fd%2F12o4Si6pqbLsjkxuWpZjtC8sIvSFpD7_DtkrMUAbt32I%2Fedit%23gid%3D974093512&force=on',
   dataType: 'json',
 });
 
@@ -960,6 +964,9 @@ $.when(somCall, countrieslabelCall, idpCall).then(function(somArgs, countrieslab
   var countrieslabel = countrieslabelArgs[0].countries;
   var idps = hxlProxyToJSON(idpArgs[0]);
   var som = topojson.feature(somArgs[0],somArgs[0].objects.som_adm2_neighbour);
+  // idps.forEach( function(element, index) {
+  //   element['#date+week'] = parseInt(element['#date+week'])+1;
+  // });
   generateMap(som, countrieslabel, idps);
 
 });

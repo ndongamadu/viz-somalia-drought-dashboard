@@ -162,7 +162,7 @@ select {
 	font-size: 12px;
 }
 #idpStats {
-	margin: 20px 0;
+	margin: 10px 0;
 }
 .source {
 	font-family: 'SourceSansPro-Regular';
@@ -209,9 +209,13 @@ select {
     margin-bottom: 15px;
 }
 label {
-	font-size: 11px;
+	font-size: 14px;
+	margin-bottom: 0;
 }
 
+p {
+	margin : 0;
+}
 #dropdown{
 	margin-bottom: 20px;
 }
