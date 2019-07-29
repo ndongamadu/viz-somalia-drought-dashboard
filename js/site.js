@@ -5,12 +5,12 @@ function hxlProxyToJSON(input){
     if(i==0){
       e.forEach(function(e2,i2){
         var parts = e2.split('+');
-        var key = parts[0]
+        var key = parts[0];
         if(parts.length>1){
           var atts = parts.splice(1,parts.length);
           atts.sort();                    
           atts.forEach(function(att){
-            key +='+'+att
+            key +='+'+att;
           });
         }
         keys.push(key);
@@ -38,7 +38,7 @@ var formatCommaNum = d3.format(',');
 
 function generateDescription(descriptionData){
   $('.title span').text('as of ' + descriptionData[0]['#date+reported']);
-  $('.description-text p').text(descriptionData[0]['#description'])
+  $('.description-text p').text(descriptionData[0]['#description']);
 }
 
 /*
@@ -47,8 +47,8 @@ Remove existing line chart et draw new ones
 function updateCharts(displacedData) {
   var charts = idpLineChart.data.shown();
   var loadedCharts = [];
-  for ( k in charts){
-    loadedCharts.push(charts[k].id)
+  for ( var k in charts){
+    loadedCharts.push(charts[k].id);
   }
   idpLineChart.load({
     unload: loadedCharts, //refresh chart
@@ -113,7 +113,7 @@ function generateMap(adm2, countrieslabel, idpData){
       maptip
         .classed('hidden', false)
         .attr('style', 'left:'+(mouse[0]+20)+'px; top:'+(mouse[1]+20)+'px')
-        .html(d.properties.admin2Name)
+        .html(d.properties.admin2Name);
     })
     .on('mouseout',  function(d,i) {
       if (!$(this).data('selected'))
@@ -250,7 +250,7 @@ function getDisplacedData(adm2) {
   conflictsAffected.push('Conflict/Insecurity');
   otherAffected.push('Other');
 
-  var dataArray = idpsDimension.group().reduceSum(function(d){ return d['#affected']; }).top(Infinity).filter(function(d){ return d.key[1]===adm2});
+  var dataArray = idpsDimension.group().reduceSum(function(d){ return d['#affected']; }).top(Infinity).filter(function(d){ return d.key[1]===adm2; });
   if (dataArray.length !=0) {
     var droughtArr = dataArray.filter(function(d){ return d.key[2]==='Drought related';}).sort(function(a,b){
       return a.key[2]<b.key[2] ? -1 : a.key[2]>b.key[2] ? 1 : 0;
@@ -267,16 +267,16 @@ function getDisplacedData(adm2) {
           conflictVal = 0,
           otherVal = 0;
       for (var k = 0; k < droughtArr.length; k++) {
-        var dd = 'W'+droughtArr[k].key[0];
-        xAxis[i]===dd ? droughtVal = droughtArr[k].value : '';
+        var dk = 'W'+droughtArr[k].key[0];
+        xAxis[i]===dk ? droughtVal = droughtArr[k].value : '';
       }
-      for (var k = 0; k < conflictArr.length; k++) {
-        var dd = 'W'+conflictArr[k].key[0];
-        xAxis[i]===dd ? conflictVal = conflictArr[k].value : '';
+      for (var l = 0; l < conflictArr.length; l++) {
+        var dl = 'W'+conflictArr[l].key[0];
+        xAxis[i]===dl ? conflictVal = conflictArr[l].value : '';
       }
-      for (var k = 0; k < otherArr.length; k++) {
-        var dd = 'W'+otherArr[k].key[0];
-        xAxis[i]===dd ? otherVal = otherArr[k].value : '';
+      for (var m = 0; m < otherArr.length; m++) {
+        var dm = 'W'+otherArr[k].key[0];
+        xAxis[i]===dm ? otherVal = otherArr[m].value : '';
       }
       droughtAffected.push(droughtVal);
       xDrought.push(xAxis[i]);
@@ -438,7 +438,7 @@ function generateKeyFigures(keyFigureData) {
 }
 var parseDate = function(d){
   dd = new Date(d);
-  return dd.getDate()  +  + (dd.getMonth()+1) + "-" + dd.getFullYear();
+  return dd.getDate() + (dd.getMonth()+1) + "-" + dd.getFullYear();
 };
 
 /** Overall monthly response charts**/
@@ -561,7 +561,7 @@ function generateSectorData (region) {
   var sectors = [];
   var dates = [];
   dates.push('x');
-  for(k in data){
+  for(var k in data){
     sectors.includes(data[k]['#sector'])? '': sectors.push(data[k]['#sector']);
     dates.includes(data[k]['#date']) ? '': dates.push(data[k]['#date']);
   }
@@ -946,7 +946,7 @@ var cf,
 
 //colors
 var primaryColor = '#418FDE',
-    secondaryColor = '#E56A54'
+    secondaryColor = '#E56A54';
     tertiaryColor = '#A4D65E';
 
 var sectorDataCf,
